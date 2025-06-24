@@ -192,3 +192,12 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# Project-specific additions for NetworkChuck AI Chatbot
+ai-chatbot-env/
+.DS_Store
+Thumbs.db
+gradio_cached_examples/
+flagged/
+*.tmp
+*.temp
