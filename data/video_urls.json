@@ -1,0 +1,565 @@
+{
+  "dataset_info": {
+    "name": "Dual Personality Video Dataset",
+    "version": "2.0",
+    "total_videos": 62,
+    "personalities": 2,
+    "created_date": "2025-01-01",
+    "description": "NetworkChuck (tech/networking) + Bloomy (Bloomberg/Excel) video dataset"
+  },
+  "networkchuck_videos": [
+    {
+      "url": "https://youtu.be/gd7BXuUQ91w",
+      "title": "60 Linux Commands you NEED to know (in 10 minutes)",
+      "category": "Linux & Command Line",
+      "difficulty": "beginner",
+      "key_topics": ["Linux", "commands", "terminal", "basics"],
+      "priority": "high"
+    },
+    {
+      "url": "https://youtu.be/eGz9DS-aIeY",
+      "title": "you need to learn Docker RIGHT NOW!! // Docker Containers 101",
+      "category": "Cloud Computing & Containers",
+      "difficulty": "intermediate",
+      "key_topics": ["Docker", "containers", "virtualization", "deployment"],
+      "priority": "high"
+    },
+    {
+      "url": "https://youtu.be/7bA0gTroJjw",
+      "title": "you need to learn Kubernetes RIGHT NOW!!",
+      "category": "Cloud Computing & Containers",
+      "difficulty": "advanced",
+      "key_topics": ["Kubernetes", "orchestration", "containers", "deployment"],
+      "priority": "high"
+    },
+    {
+      "url": "https://youtu.be/0qQkQAKP07A",
+      "title": "setup a FREE VPN server in the cloud (AWS)",
+      "category": "VPN & Security",
+      "difficulty": "intermediate",
+      "key_topics": ["VPN", "AWS", "cloud", "setup"],
+      "priority": "high"
+    },
+    {
+      "url": "https://youtu.be/S7MNX_UD7vY",
+      "title": "you need to learn Python RIGHT NOW!! // EP 1",
+      "category": "Programming",
+      "difficulty": "beginner",
+      "key_topics": ["Python", "programming", "automation", "scripting"],
+      "priority": "high"
+    },
+    {
+      "url": "https://youtu.be/tcPDaFP-ej0",
+      "title": "you need to learn AWS RIGHT NOW!! (Amazon Web Services)",
+      "category": "Cloud Computing & Containers",
+      "difficulty": "beginner",
+      "key_topics": ["AWS", "cloud computing", "services", "infrastructure"],
+      "priority": "high"
+    },
+    {
+      "url": "https://youtu.be/yowWfV8uA8c",
+      "title": "learn Ansible RIGHT NOW!! (Linux Automation)",
+      "category": "Linux & Command Line",
+      "difficulty": "intermediate",
+      "key_topics": [
+        "Ansible",
+        "automation",
+        "Linux",
+        "configuration management"
+      ],
+      "priority": "medium"
+    },
+    {
+      "url": "https://youtu.be/9VrKJmyZiWw",
+      "title": "how to HACK a password // password cracking with Kali Linux and HashCat",
+      "category": "Cybersecurity & Hacking",
+      "difficulty": "intermediate",
+      "key_topics": [
+        "password cracking",
+        "Kali Linux",
+        "HashCat",
+        "cybersecurity"
+      ],
+      "priority": "medium"
+    },
+    {
+      "url": "https://youtu.be/mpQZVYPuDGU",
+      "title": "what is DNS? // FREE CCNA // EP 7",
+      "category": "Networking Fundamentals",
+      "difficulty": "beginner",
+      "key_topics": ["DNS", "domain names", "networking", "CCNA"],
+      "priority": "high"
+    },
+    {
+      "url": "https://youtu.be/s_Ntt6eTn94",
+      "title": "subnetting is simple // CCNA // EP 6",
+      "category": "Networking Fundamentals",
+      "difficulty": "intermediate",
+      "key_topics": ["subnetting", "IP addresses", "CIDR", "CCNA"],
+      "priority": "high"
+    },
+    {
+      "url": "https://youtu.be/keeqnciDVOo",
+      "title": "how to setup a FREE VPN server in the cloud (AWS)",
+      "category": "VPN & Security",
+      "difficulty": "intermediate",
+      "key_topics": ["VPN", "AWS", "OpenVPN", "cloud security"],
+      "priority": "high"
+    },
+    {
+      "url": "https://youtu.be/dH3DdLy574M",
+      "title": "Raspberry Pi 4 Cluster for Docker Swarm and Kubernetes",
+      "category": "Hardware & Infrastructure",
+      "difficulty": "advanced",
+      "key_topics": ["Raspberry Pi", "cluster", "Docker Swarm", "Kubernetes"],
+      "priority": "medium"
+    },
+    {
+      "url": "https://youtu.be/6ElI8QeApks",
+      "title": "Linux for Hackers // EP 1",
+      "category": "Linux & Command Line",
+      "difficulty": "beginner",
+      "key_topics": ["Linux", "hacking", "Kali Linux", "security"],
+      "priority": "high"
+    },
+    {
+      "url": "https://youtu.be/lrGntJPAMy4",
+      "title": "your home router SUCKS!! (use pfSense instead)",
+      "category": "Networking Fundamentals",
+      "difficulty": "intermediate",
+      "key_topics": ["pfSense", "router", "firewall", "home network"],
+      "priority": "high"
+    },
+    {
+      "url": "https://youtu.be/bKFMS5C4CG0",
+      "title": "Docker networking is CRAZY!! (you NEED to learn it)",
+      "category": "Cloud Computing & Containers",
+      "difficulty": "intermediate",
+      "key_topics": ["Docker", "networking", "containers", "advanced"],
+      "priority": "medium"
+    },
+    {
+      "url": "https://youtu.be/YS5Zh7KExvE",
+      "title": "you need to learn Virtual Machines RIGHT NOW!! (Kali Linux VM, Ubuntu, Windows)",
+      "category": "Virtualization",
+      "difficulty": "beginner",
+      "key_topics": ["virtual machines", "VMware", "VirtualBox", "Kali Linux"],
+      "priority": "high"
+    },
+    {
+      "url": "https://youtu.be/o2CFqHAmGzc",
+      "title": "Kali Linux 2020.1 // What's new in penetration testing",
+      "category": "Cybersecurity & Hacking",
+      "difficulty": "intermediate",
+      "key_topics": [
+        "Kali Linux",
+        "penetration testing",
+        "cybersecurity",
+        "tools"
+      ],
+      "priority": "medium"
+    },
+    {
+      "url": "https://youtu.be/x3c1ih2NJEg",
+      "title": "how the internet works // networking course for beginners",
+      "category": "Networking Fundamentals",
+      "difficulty": "beginner",
+      "key_topics": ["internet", "networking", "infrastructure", "basics"],
+      "priority": "high"
+    },
+    {
+      "url": "https://youtu.be/46lBWVT5uDM",
+      "title": "learn PowerShell in Linux!! (pwsh)",
+      "category": "Programming",
+      "difficulty": "intermediate",
+      "key_topics": ["PowerShell", "Linux", "scripting", "automation"],
+      "priority": "medium"
+    },
+    {
+      "url": "https://youtu.be/DZw-TNzPWjQ",
+      "title": "you need to try Proxmox!! (before VMware gets worse)",
+      "category": "Virtualization",
+      "difficulty": "intermediate",
+      "key_topics": [
+        "Proxmox",
+        "virtualization",
+        "VMware alternative",
+        "hypervisor"
+      ],
+      "priority": "medium"
+    },
+    {
+      "url": "https://youtu.be/2_LXuYhGn4A",
+      "title": "Pi-hole on Docker and Kubernetes!! (I'm ditching my Raspberry Pi)",
+      "category": "Hardware & Infrastructure",
+      "difficulty": "intermediate",
+      "key_topics": ["Pi-hole", "Docker", "Kubernetes", "DNS filtering"],
+      "priority": "medium"
+    },
+    {
+      "url": "https://youtu.be/WMy3OzvBWc0",
+      "title": "Windows Terminal // the BEST terminal for Windows",
+      "category": "Tools & Utilities",
+      "difficulty": "beginner",
+      "key_topics": [
+        "Windows Terminal",
+        "command line",
+        "productivity",
+        "tools"
+      ],
+      "priority": "medium"
+    },
+    {
+      "url": "https://youtu.be/ORwfre_2fDs",
+      "title": "Wireshark // Network Protocol Analyzer",
+      "category": "Networking Fundamentals",
+      "difficulty": "intermediate",
+      "key_topics": [
+        "Wireshark",
+        "network analysis",
+        "packet capture",
+        "troubleshooting"
+      ],
+      "priority": "high"
+    },
+    {
+      "url": "https://youtu.be/H2fgBiDbMpU",
+      "title": "learning hacking? DON'T make this mistake!! (hide yourself with Kali Linux and ProxyChains)",
+      "category": "Cybersecurity & Hacking",
+      "difficulty": "intermediate",
+      "key_topics": ["ProxyChains", "anonymity", "Kali Linux", "hacking"],
+      "priority": "medium"
+    },
+    {
+      "url": "https://youtu.be/FfoQsOQz1zs",
+      "title": "Nmap // The Network Mapper",
+      "category": "Cybersecurity & Hacking",
+      "difficulty": "intermediate",
+      "key_topics": [
+        "Nmap",
+        "network scanning",
+        "port scanning",
+        "reconnaissance"
+      ],
+      "priority": "high"
+    },
+    {
+      "url": "https://youtu.be/fNk_zzaMoSs",
+      "title": "learn Terraform (in 15 minutes) // Automate Infrastructure",
+      "category": "Cloud Computing & Containers",
+      "difficulty": "intermediate",
+      "key_topics": [
+        "Terraform",
+        "infrastructure as code",
+        "automation",
+        "cloud"
+      ],
+      "priority": "medium"
+    },
+    {
+      "url": "https://youtu.be/DM65_JyGxCo",
+      "title": "Docker Compose will BLOW your MIND!! (a tutorial)",
+      "category": "Cloud Computing & Containers",
+      "difficulty": "intermediate",
+      "key_topics": [
+        "Docker Compose",
+        "multi-container",
+        "orchestration",
+        "YAML"
+      ],
+      "priority": "high"
+    },
+    {
+      "url": "https://youtu.be/RMhVgfkU7D4",
+      "title": "i built a Raspberry Pi GPS Tracker!! (and you can too)",
+      "category": "Hardware & Infrastructure",
+      "difficulty": "intermediate",
+      "key_topics": ["Raspberry Pi", "GPS tracking", "IoT", "projects"],
+      "priority": "low"
+    },
+    {
+      "url": "https://youtu.be/T53qcAWJleg",
+      "title": "bad USBs are SCARY!! (Flipper Zero)",
+      "category": "Cybersecurity & Hacking",
+      "difficulty": "intermediate",
+      "key_topics": [
+        "USB attacks",
+        "Flipper Zero",
+        "BadUSB",
+        "physical security"
+      ],
+      "priority": "medium"
+    },
+    {
+      "url": "https://youtu.be/6Jd5VXqLyws",
+      "title": "GitHub Actions will change your life!! (Docker deployment to AWS)",
+      "category": "Programming",
+      "difficulty": "intermediate",
+      "key_topics": ["GitHub Actions", "CI/CD", "Docker", "AWS deployment"],
+      "priority": "medium"
+    }
+  ],
+  "bloomy_videos": [
+    {
+      "url": "https://www.youtube.com/watch?v=TnQuWrcDLzc",
+      "title": "Bloomberg Terminal Basics",
+      "category": "Bloomberg Terminal",
+      "difficulty": "beginner",
+      "key_topics": ["Bloomberg", "terminal", "basics", "navigation"],
+      "priority": "high"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=vqlm4qPySfg",
+      "title": "Excel Advanced Functions",
+      "category": "Excel Advanced",
+      "difficulty": "intermediate",
+      "key_topics": ["Excel", "functions", "advanced", "formulas"],
+      "priority": "high"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=HFf6SOCU63k",
+      "title": "Data Analysis with Excel",
+      "category": "Excel Advanced",
+      "difficulty": "intermediate",
+      "key_topics": ["Excel", "data analysis", "pivot tables", "charts"],
+      "priority": "high"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=ygMr4EnM2WM",
+      "title": "Financial Modeling Basics",
+      "category": "Financial Analysis",
+      "difficulty": "intermediate",
+      "key_topics": ["financial modeling", "Excel", "analysis", "valuation"],
+      "priority": "high"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=-MkECuqzW_w",
+      "title": "Bloomberg Functions Guide",
+      "category": "Bloomberg Terminal",
+      "difficulty": "intermediate",
+      "key_topics": ["Bloomberg", "functions", "shortcuts", "commands"],
+      "priority": "high"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=eaZ8s2HY-oE",
+      "title": "Excel Pivot Tables Tutorial",
+      "category": "Excel Advanced",
+      "difficulty": "intermediate",
+      "key_topics": ["Excel", "pivot tables", "data analysis", "reporting"],
+      "priority": "high"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=J72QJdjNzuA",
+      "title": "Market Data Analysis",
+      "category": "Financial Analysis",
+      "difficulty": "intermediate",
+      "key_topics": ["market data", "analysis", "Bloomberg", "Excel"],
+      "priority": "medium"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=L6hnrv5HZWc",
+      "title": "Excel VBA for Finance",
+      "category": "Excel Advanced",
+      "difficulty": "advanced",
+      "key_topics": ["Excel", "VBA", "automation", "finance"],
+      "priority": "medium"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=IaKUtjCh5jM",
+      "title": "Bloomberg Terminal Navigation",
+      "category": "Bloomberg Terminal",
+      "difficulty": "beginner",
+      "key_topics": ["Bloomberg", "navigation", "interface", "basics"],
+      "priority": "high"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=flbnVDaTR0E",
+      "title": "Financial Charts in Excel",
+      "category": "Excel Advanced",
+      "difficulty": "intermediate",
+      "key_topics": ["Excel", "charts", "financial", "visualization"],
+      "priority": "medium"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=vGD4STHHFWA",
+      "title": "Portfolio Analysis Tools",
+      "category": "Financial Analysis",
+      "difficulty": "intermediate",
+      "key_topics": ["portfolio", "analysis", "Bloomberg", "risk"],
+      "priority": "high"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=0iufusleAFA",
+      "title": "Excel Data Validation",
+      "category": "Excel Fundamentals",
+      "difficulty": "beginner",
+      "key_topics": ["Excel", "data validation", "input control", "forms"],
+      "priority": "medium"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=evjTE3Wl7xM",
+      "title": "Bloomberg News and Research",
+      "category": "Bloomberg Terminal",
+      "difficulty": "beginner",
+      "key_topics": ["Bloomberg", "news", "research", "information"],
+      "priority": "medium"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=jIGv9TAJNjI",
+      "title": "Advanced Excel Formulas",
+      "category": "Excel Advanced",
+      "difficulty": "advanced",
+      "key_topics": ["Excel", "formulas", "advanced", "calculations"],
+      "priority": "high"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=XvFkXTCBdLw",
+      "title": "Risk Management in Excel",
+      "category": "Financial Analysis",
+      "difficulty": "advanced",
+      "key_topics": ["risk management", "Excel", "analysis", "modeling"],
+      "priority": "high"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=0_LmAlb0ns4",
+      "title": "Excel Conditional Formatting",
+      "category": "Excel Fundamentals",
+      "difficulty": "beginner",
+      "key_topics": [
+        "Excel",
+        "conditional formatting",
+        "visualization",
+        "data"
+      ],
+      "priority": "medium"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=G7Uo2TIQ0Ko",
+      "title": "Bloomberg API Integration",
+      "category": "Bloomberg Terminal",
+      "difficulty": "advanced",
+      "key_topics": ["Bloomberg", "API", "integration", "data"],
+      "priority": "medium"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=95JY7KgJ5mM",
+      "title": "Excel Power Query",
+      "category": "Excel Advanced",
+      "difficulty": "intermediate",
+      "key_topics": ["Excel", "Power Query", "data", "transformation"],
+      "priority": "high"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=NfIpsL3a3xE",
+      "title": "Financial Dashboard Creation",
+      "category": "Financial Analysis",
+      "difficulty": "intermediate",
+      "key_topics": ["dashboard", "Excel", "financial", "KPIs"],
+      "priority": "high"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=l4K-HsfeWKc",
+      "title": "Excel VLOOKUP Tutorial",
+      "category": "Excel Fundamentals",
+      "difficulty": "beginner",
+      "key_topics": ["Excel", "VLOOKUP", "lookup", "functions"],
+      "priority": "high"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=ifP0EFbZ5xI",
+      "title": "Bloomberg Excel Add-in",
+      "category": "Bloomberg Terminal",
+      "difficulty": "intermediate",
+      "key_topics": ["Bloomberg", "Excel", "add-in", "integration"],
+      "priority": "high"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=QcvURCPBw20",
+      "title": "Excel Data Tables",
+      "category": "Excel Advanced",
+      "difficulty": "intermediate",
+      "key_topics": ["Excel", "data tables", "sensitivity", "analysis"],
+      "priority": "medium"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=lIB2T5AlsBM",
+      "title": "Bond Pricing Models",
+      "category": "Financial Analysis",
+      "difficulty": "advanced",
+      "key_topics": ["bonds", "pricing", "models", "Excel"],
+      "priority": "medium"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=QfRFrGIU2ow",
+      "title": "Excel Index Match",
+      "category": "Excel Advanced",
+      "difficulty": "intermediate",
+      "key_topics": ["Excel", "INDEX", "MATCH", "lookup"],
+      "priority": "high"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=dZgDTV7iIks",
+      "title": "Bloomberg Equity Analysis",
+      "category": "Bloomberg Terminal",
+      "difficulty": "intermediate",
+      "key_topics": ["Bloomberg", "equity", "analysis", "stocks"],
+      "priority": "high"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=2hd7jq2YNbg",
+      "title": "Excel Solver Tutorial",
+      "category": "Excel Advanced",
+      "difficulty": "advanced",
+      "key_topics": ["Excel", "Solver", "optimization", "constraints"],
+      "priority": "medium"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Q2YiAi0HxlI",
+      "title": "Options Pricing Models",
+      "category": "Financial Analysis",
+      "difficulty": "advanced",
+      "key_topics": ["options", "pricing", "Black-Scholes", "Excel"],
+      "priority": "medium"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=O-eOj5LpfXg",
+      "title": "Excel Array Formulas",
+      "category": "Excel Advanced",
+      "difficulty": "advanced",
+      "key_topics": ["Excel", "array formulas", "calculations", "advanced"],
+      "priority": "medium"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=lSKTZAn2SU4",
+      "title": "Bloomberg Fixed Income",
+      "category": "Bloomberg Terminal",
+      "difficulty": "intermediate",
+      "key_topics": ["Bloomberg", "fixed income", "bonds", "analysis"],
+      "priority": "high"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=TGGEkpEymGs",
+      "title": "Excel Power Pivot",
+      "category": "Excel Advanced",
+      "difficulty": "advanced",
+      "key_topics": ["Excel", "Power Pivot", "data modeling", "analysis"],
+      "priority": "medium"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=16k7bXM88_k",
+      "title": "Currency Analysis Tools",
+      "category": "Financial Analysis",
+      "difficulty": "intermediate",
+      "key_topics": ["currency", "forex", "analysis", "Bloomberg"],
+      "priority": "medium"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=9eQwqtfjdgM",
+      "title": "Excel Dynamic Arrays",
+      "category": "Excel Advanced",
+      "difficulty": "advanced",
+      "key_topics": ["Excel", "dynamic arrays", "365", "formulas"],
+      "priority": "medium"
+    }
+  ]
+}
