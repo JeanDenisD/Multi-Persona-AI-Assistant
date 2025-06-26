@@ -1,0 +1,21 @@
+{
+  "timestamp": "2025-06-26T16:06:46.271056",
+  "networkchuck": {
+    "total_rows": 18772,
+    "total_words": 188368,
+    "avg_text_length": 51.31037238293112,
+    "issues": [
+      "Duplicate text entries: 699",
+      "Missing text: 1"
+    ]
+  },
+  "bloomy": {
+    "total_rows": 819,
+    "total_words": 11650,
+    "avg_text_length": 72.83272283272284,
+    "issues": [
+      "Duplicate text entries: 40"
+    ]
+  },
+  "status": "good"
+}
