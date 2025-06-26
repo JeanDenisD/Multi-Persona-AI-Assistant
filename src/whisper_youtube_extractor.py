@@ -504,63 +504,96 @@ class WhisperYouTubeExtractor:
         except Exception as e:
             self.logger.error(f"Failed to create combined {personality} CSV: {e}")
     
-    def process_video_list(self, video_list: List[Dict]) -> Dict:
-        """
-        Process a list of videos
+def process_video_list(self, video_list: List[Dict]) -> Dict:
+    """
+    Process a list of videos
+    
+    Args:
+        video_list: List of video dictionaries with 'url' key
         
-        Args:
-            video_list: List of video dictionaries with 'url' key
+    Returns:
+        Processing summary with failed and unknown URL tracking
+    """
+    self.logger.info(f"🚀 Starting processing of {len(video_list)} videos")
+    
+    results = {'networkchuck': [], 'bloomy': [], 'unknown': []}
+    successful = 0
+    failed = 0
+    
+    # Track problematic URLs
+    failed_urls = []
+    unknown_urls = []
+    
+    for i, video_data in enumerate(video_list):
+        try:
+            self.logger.info(f"📹 Processing video {i+1}/{len(video_list)}")
             
-        Returns:
-            Processing summary
-        """
-        self.logger.info(f"🚀 Starting processing of {len(video_list)} videos")
-        
-        results = {'networkchuck': [], 'bloomy': [], 'unknown': []}
-        successful = 0
-        failed = 0
-        
-        for i, video_data in enumerate(video_list):
-            try:
-                self.logger.info(f"📹 Processing video {i+1}/{len(video_list)}")
+            result = self.process_single_video(video_data)
+            
+            if result:
+                personality = result.get('personality', 'unknown')
+                results[personality].append(result)
                 
-                result = self.process_single_video(video_data)
+                # Track unknown personality videos
+                if personality == 'unknown':
+                    url = video_data.get('url', '')
+                    title = result.get('video_info', {}).get('title', 'N/A')
+                    unknown_urls.append({'url': url, 'title': title})
+                    print(f"❌ Unknown video: {url} - Title: {title}")
                 
-                if result:
-                    personality = result.get('personality', 'unknown')
-                    results[personality].append(result)
-                    successful += 1
-                else:
-                    failed += 1
-                
-                # Small delay to avoid overwhelming the system
-                time.sleep(1)
-                
-            except Exception as e:
-                self.logger.error(f"Unexpected error processing video {i+1}: {e}")
+                successful += 1
+            else:
+                url = video_data.get('url', '')
+                failed_urls.append({'url': url, 'error': 'Processing failed'})
+                print(f"🚫 Failed to process: {url}")
                 failed += 1
-        
-        # Create combined CSVs for each personality
-        for personality in ['networkchuck', 'bloomy']:
-            if results[personality]:
-                self.create_combined_csv(personality)
-        
-        summary = {
-            'total_processed': successful,
-            'total_failed': failed,
-            'networkchuck_videos': len(results['networkchuck']),
-            'bloomy_videos': len(results['bloomy']),
-            'unknown_videos': len(results['unknown']),
-            'processing_time': time.time()
-        }
-        
-        self.logger.info(f"🎉 Processing complete!")
-        self.logger.info(f"✅ Successful: {successful}")
-        self.logger.info(f"❌ Failed: {failed}")
-        self.logger.info(f"🎬 NetworkChuck: {len(results['networkchuck'])}")
-        self.logger.info(f"📊 Bloomy: {len(results['bloomy'])}")
-        
-        return summary
+            
+            # Small delay to avoid overwhelming the system
+            time.sleep(1)
+            
+        except Exception as e:
+            url = video_data.get('url', '')
+            failed_urls.append({'url': url, 'error': str(e)})
+            print(f"🚫 Failed to process: {url} - Error: {e}")
+            self.logger.error(f"Unexpected error processing video {i+1}: {e}")
+            failed += 1
+    
+    # Create combined CSVs for each personality
+    for personality in ['networkchuck', 'bloomy']:
+        if results[personality]:
+            self.create_combined_csv(personality)
+    
+    # Print detailed summary
+    print(f"\n📊 Processing Summary:")
+    print(f"Failed URLs ({len(failed_urls)}):")
+    for item in failed_urls:
+        print(f"  - {item['url']} | Error: {item['error']}")
+    
+    print(f"\nUnknown URLs ({len(unknown_urls)}):")
+    for item in unknown_urls:
+        print(f"  - {item['url']} | Title: {item['title']}")
+    
+    summary = {
+        'total_processed': successful,
+        'total_failed': failed,
+        'networkchuck_videos': len(results['networkchuck']),
+        'bloomy_videos': len(results['bloomy']),
+        'unknown_videos': len(results['unknown']),
+        'failed_urls': failed_urls,
+        'unknown_urls': unknown_urls,
+        'processing_time': time.time()
+    }
+    
+    self.logger.info(f"🎉 Processing complete!")
+    self.logger.info(f"✅ Successful: {successful}")
+    self.logger.info(f"❌ Failed: {failed}")
+    self.logger.info(f"🎬 NetworkChuck: {len(results['networkchuck'])}")
+    self.logger.info(f"📊 Bloomy: {len(results['bloomy'])}")
+    self.logger.info(f"❓ Unknown: {len(results['unknown'])}")
+    
+    return summary
+    
+    
 
 def process_from_json(json_file: str, model_size: str = "base") -> Dict:
     """
@@ -591,5 +624,5 @@ if __name__ == "__main__":
     print("=" * 60)
     
     # Process videos from the enhanced dataset
-    result = process_from_json("enhanced_video_dataset.json", model_size="base")
+    result = process_from_json("data/video_urls.json", model_size="small")
     print(f"\n🎉 Final result: {result}")
