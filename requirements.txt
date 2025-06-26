@@ -5,9 +5,12 @@ gradio==4.20.0                    # Interactive web UI (alternative to Streamlit
 
 # === AI AND LANGUAGE MODELS ===
 langchain==0.1.10                 # LLM application framework
-langchain-openai==0.0.8           # OpenAI integration for LangChain
-langsmith==0.1.0                  # LangChain monitoring and debugging
-openai==1.12.0                    # OpenAI API client
+langchain-core>=0.1.28,<0.2       # LangChain core components
+langchain-openai>=0.0.8,<0.1      # OpenAI integration for LangChain
+langchain-community>=0.0.38,<0.1  # Community integrations
+langchain-text-splitters>=0.0.2,<0.1  # Text splitting utilities
+langsmith>=0.1.0,<0.2             # LangChain monitoring and debugging
+openai>=1.30.0,<2.0               # OpenAI API client
 
 # === VECTOR DATABASES ===
 langchain-pinecone==0.0.3         # Pinecone integration for LangChain
@@ -26,11 +29,13 @@ numpy==1.24.3                    # Numerical computing
 pandas==2.0.3                    # Data manipulation and analysis
 tiktoken==0.6.0                  # OpenAI tokenizer
 
+# === PROGRESS BARS AND UTILITIES ===
+tqdm>=4.65.0                     # Progress bars for batch processing
+jupyter>=1.0.0                   # Jupyter notebooks for analysis  
+ipykernel>=6.25.0                # Jupyter kernel
+
 # === OPTIONAL ADDITIONS FOR ENHANCED FUNCTIONALITY ===
 # Uncomment these if you want additional features:
 
 # streamlit>=1.28.0              # Alternative web interface to Gradio
 # chromadb>=0.4.0                # Alternative vector database to Pinecone
-jupyter>=1.0.0                 # Jupyter notebooks for analysis
-ipykernel>=6.25.0              # Jupyter kernel
-tqdm>=4.65.0                   # Progress bars for batch processing
