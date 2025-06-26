@@ -9,7 +9,7 @@
   },
   "networkchuck_videos": [
     {
-      "url": "https://youtu.be/gd7BXuUQ91w",
+      "url": "https://www.youtube.com/watch?v=gd7BXuUQ91w",
       "title": "60 Linux Commands you NEED to know (in 10 minutes)",
       "category": "Linux & Command Line",
       "difficulty": "beginner",
@@ -17,7 +17,7 @@
       "priority": "high"
     },
     {
-      "url": "https://youtu.be/eGz9DS-aIeY",
+      "url": "https://www.youtube.com/watch?v=eGz9DS-aIeY",
       "title": "you need to learn Docker RIGHT NOW!! // Docker Containers 101",
       "category": "Cloud Computing & Containers",
       "difficulty": "intermediate",
@@ -25,7 +25,7 @@
       "priority": "high"
     },
     {
-      "url": "https://youtu.be/7bA0gTroJjw",
+      "url": "https://www.youtube.com/watch?v=7bA0gTroJjw",
       "title": "you need to learn Kubernetes RIGHT NOW!!",
       "category": "Cloud Computing & Containers",
       "difficulty": "advanced",
@@ -33,7 +33,7 @@
       "priority": "high"
     },
     {
-      "url": "https://youtu.be/0qQkQAKP07A",
+      "url": "https://www.youtube.com/watch?v=m-i2JBtG4FE",
       "title": "setup a FREE VPN server in the cloud (AWS)",
       "category": "VPN & Security",
       "difficulty": "intermediate",
@@ -41,7 +41,7 @@
       "priority": "high"
     },
     {
-      "url": "https://youtu.be/S7MNX_UD7vY",
+      "url": "https://www.youtube.com/watch?v=S7MNX_UD7vY",
       "title": "you need to learn Python RIGHT NOW!! // EP 1",
       "category": "Programming",
       "difficulty": "beginner",
@@ -49,7 +49,7 @@
       "priority": "high"
     },
     {
-      "url": "https://youtu.be/tcPDaFP-ej0",
+      "url": "https://www.youtube.com/watch?v=bgPuPSPZe2U",
       "title": "you need to learn AWS RIGHT NOW!! (Amazon Web Services)",
       "category": "Cloud Computing & Containers",
       "difficulty": "beginner",
@@ -57,7 +57,7 @@
       "priority": "high"
     },
     {
-      "url": "https://youtu.be/yowWfV8uA8c",
+      "url": "https://www.youtube.com/watch?v=5hycyr-8EKs",
       "title": "learn Ansible RIGHT NOW!! (Linux Automation)",
       "category": "Linux & Command Line",
       "difficulty": "intermediate",
@@ -70,7 +70,7 @@
       "priority": "medium"
     },
     {
-      "url": "https://youtu.be/9VrKJmyZiWw",
+      "url": "https://www.youtube.com/watch?v=z4_oqTZJqCo",
       "title": "how to HACK a password // password cracking with Kali Linux and HashCat",
       "category": "Cybersecurity & Hacking",
       "difficulty": "intermediate",
@@ -83,23 +83,28 @@
       "priority": "medium"
     },
     {
-      "url": "https://youtu.be/mpQZVYPuDGU",
-      "title": "what is DNS? // FREE CCNA // EP 7",
+      "url": "https://www.youtube.com/watch?v=6-66D9J5PkY",
+      "title": "Data Center NETWORKS (what do they look like??) // FREE CCNA // EP 7",
       "category": "Networking Fundamentals",
       "difficulty": "beginner",
-      "key_topics": ["DNS", "domain names", "networking", "CCNA"],
+      "key_topics": [
+        "data center networking",
+        "network topology",
+        "network infrastructure",
+        "CCNA"
+      ],
       "priority": "high"
     },
     {
-      "url": "https://youtu.be/s_Ntt6eTn94",
-      "title": "subnetting is simple // CCNA // EP 6",
+      "url": "https://www.youtube.com/watch?v=mJ_5qeqGOaI",
+      "title": "let’s subnet your home network // You SUCK at subnetting // EP 6",
       "category": "Networking Fundamentals",
       "difficulty": "intermediate",
       "key_topics": ["subnetting", "IP addresses", "CIDR", "CCNA"],
       "priority": "high"
     },
     {
-      "url": "https://youtu.be/keeqnciDVOo",
+      "url": "https://www.youtube.com/watch?v=keeqnciDVOo",
       "title": "how to setup a FREE VPN server in the cloud (AWS)",
       "category": "VPN & Security",
       "difficulty": "intermediate",
@@ -107,7 +112,7 @@
       "priority": "high"
     },
     {
-      "url": "https://youtu.be/dH3DdLy574M",
+      "url": "https://www.youtube.com/watch?v=dH3DdLy574M",
       "title": "Raspberry Pi 4 Cluster for Docker Swarm and Kubernetes",
       "category": "Hardware & Infrastructure",
       "difficulty": "advanced",
@@ -115,7 +120,7 @@
       "priority": "medium"
     },
     {
-      "url": "https://youtu.be/6ElI8QeApks",
+      "url": "https://www.youtube.com/watch?v=VbEx7B_PTOE",
       "title": "Linux for Hackers // EP 1",
       "category": "Linux & Command Line",
       "difficulty": "beginner",
@@ -123,7 +128,7 @@
       "priority": "high"
     },
     {
-      "url": "https://youtu.be/lrGntJPAMy4",
+      "url": "https://www.youtube.com/watch?v=lUzSsX4T4WQ",
       "title": "your home router SUCKS!! (use pfSense instead)",
       "category": "Networking Fundamentals",
       "difficulty": "intermediate",
@@ -131,7 +136,7 @@
       "priority": "high"
     },
     {
-      "url": "https://youtu.be/bKFMS5C4CG0",
+      "url": "https://www.youtube.com/watch?v=bKFMS5C4CG0",
       "title": "Docker networking is CRAZY!! (you NEED to learn it)",
       "category": "Cloud Computing & Containers",
       "difficulty": "intermediate",
@@ -139,7 +144,7 @@
       "priority": "medium"
     },
     {
-      "url": "https://youtu.be/YS5Zh7KExvE",
+      "url": "https://www.youtube.com/watch?v=wX75Z-4MEoM",
       "title": "you need to learn Virtual Machines RIGHT NOW!! (Kali Linux VM, Ubuntu, Windows)",
       "category": "Virtualization",
       "difficulty": "beginner",
@@ -147,8 +152,8 @@
       "priority": "high"
     },
     {
-      "url": "https://youtu.be/o2CFqHAmGzc",
-      "title": "Kali Linux 2020.1 // What's new in penetration testing",
+      "url": "https://www.youtube.com/watch?v=AfVH54edAHU",
+      "title": "Kali Linux on Windows in 5min (WSL 2 GUI)",
       "category": "Cybersecurity & Hacking",
       "difficulty": "intermediate",
       "key_topics": [
@@ -160,15 +165,15 @@
       "priority": "medium"
     },
     {
-      "url": "https://youtu.be/x3c1ih2NJEg",
-      "title": "how the internet works // networking course for beginners",
+      "url": "https://www.youtube.com/watch?v=NiQTs9DbtW4",
+      "title": "What is DNS? (and how it makes the Internet work)",
       "category": "Networking Fundamentals",
       "difficulty": "beginner",
       "key_topics": ["internet", "networking", "infrastructure", "basics"],
       "priority": "high"
     },
     {
-      "url": "https://youtu.be/46lBWVT5uDM",
+      "url": "https://www.youtube.com/watch?v=sxTNACldK3Y",
       "title": "learn PowerShell in Linux!! (pwsh)",
       "category": "Programming",
       "difficulty": "intermediate",
@@ -176,28 +181,7 @@
       "priority": "medium"
     },
     {
-      "url": "https://youtu.be/DZw-TNzPWjQ",
-      "title": "you need to try Proxmox!! (before VMware gets worse)",
-      "category": "Virtualization",
-      "difficulty": "intermediate",
-      "key_topics": [
-        "Proxmox",
-        "virtualization",
-        "VMware alternative",
-        "hypervisor"
-      ],
-      "priority": "medium"
-    },
-    {
-      "url": "https://youtu.be/2_LXuYhGn4A",
-      "title": "Pi-hole on Docker and Kubernetes!! (I'm ditching my Raspberry Pi)",
-      "category": "Hardware & Infrastructure",
-      "difficulty": "intermediate",
-      "key_topics": ["Pi-hole", "Docker", "Kubernetes", "DNS filtering"],
-      "priority": "medium"
-    },
-    {
-      "url": "https://youtu.be/WMy3OzvBWc0",
+      "url": "https://www.youtube.com/watch?v=WMy3OzvBWc0",
       "title": "Windows Terminal // the BEST terminal for Windows",
       "category": "Tools & Utilities",
       "difficulty": "beginner",
@@ -210,54 +194,20 @@
       "priority": "medium"
     },
     {
-      "url": "https://youtu.be/ORwfre_2fDs",
-      "title": "Wireshark // Network Protocol Analyzer",
-      "category": "Networking Fundamentals",
+      "url": "https://www.youtube.com/watch?v=k02P5nghmfs",
+      "title": "your home automation SUCKS!!",
+      "category": "Home Automation",
       "difficulty": "intermediate",
       "key_topics": [
-        "Wireshark",
-        "network analysis",
-        "packet capture",
-        "troubleshooting"
-      ],
-      "priority": "high"
-    },
-    {
-      "url": "https://youtu.be/H2fgBiDbMpU",
-      "title": "learning hacking? DON'T make this mistake!! (hide yourself with Kali Linux and ProxyChains)",
-      "category": "Cybersecurity & Hacking",
-      "difficulty": "intermediate",
-      "key_topics": ["ProxyChains", "anonymity", "Kali Linux", "hacking"],
-      "priority": "medium"
-    },
-    {
-      "url": "https://youtu.be/FfoQsOQz1zs",
-      "title": "Nmap // The Network Mapper",
-      "category": "Cybersecurity & Hacking",
-      "difficulty": "intermediate",
-      "key_topics": [
-        "Nmap",
-        "network scanning",
-        "port scanning",
-        "reconnaissance"
-      ],
-      "priority": "high"
-    },
-    {
-      "url": "https://youtu.be/fNk_zzaMoSs",
-      "title": "learn Terraform (in 15 minutes) // Automate Infrastructure",
-      "category": "Cloud Computing & Containers",
-      "difficulty": "intermediate",
-      "key_topics": [
-        "Terraform",
-        "infrastructure as code",
-        "automation",
-        "cloud"
+        "Home Assistant",
+        "smart home",
+        "automation setup",
+        "IoT sensors"
       ],
       "priority": "medium"
     },
     {
-      "url": "https://youtu.be/DM65_JyGxCo",
+      "url": "https://www.youtube.com/watch?v=DM65_JyGxCo",
       "title": "Docker Compose will BLOW your MIND!! (a tutorial)",
       "category": "Cloud Computing & Containers",
       "difficulty": "intermediate",
@@ -270,33 +220,68 @@
       "priority": "high"
     },
     {
-      "url": "https://youtu.be/RMhVgfkU7D4",
-      "title": "i built a Raspberry Pi GPS Tracker!! (and you can too)",
-      "category": "Hardware & Infrastructure",
-      "difficulty": "intermediate",
-      "key_topics": ["Raspberry Pi", "GPS tracking", "IoT", "projects"],
-      "priority": "low"
+      "url": "https://www.youtube.com/watch?v=gL4j-a-g9pA",
+      "title": "variables in Python // Python RIGHT NOW!! // EP 2",
+      "category": "Programming",
+      "difficulty": "beginner",
+      "key_topics": ["python", "programming", "variables", "basics"],
+      "priority": "high"
     },
     {
-      "url": "https://youtu.be/T53qcAWJleg",
-      "title": "bad USBs are SCARY!! (Flipper Zero)",
+      "url": "https://www.youtube.com/watch?v=0kk6k-VdllM",
+      "title": "intro to cloud hacking (leaky buckets)",
       "category": "Cybersecurity & Hacking",
       "difficulty": "intermediate",
-      "key_topics": [
-        "USB attacks",
-        "Flipper Zero",
-        "BadUSB",
-        "physical security"
-      ],
+      "key_topics": ["cloud security", "hacking", "AWS", "buckets"],
+      "priority": "high"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=B2V_8M9cjYw",
+      "title": "Block ALL ads with this…(and speed up your internet)",
+      "category": "Networking Fundamentals",
+      "difficulty": "beginner",
+      "key_topics": ["networking", "ad blocking", "DNS", "security"],
       "priority": "medium"
     },
     {
-      "url": "https://youtu.be/6Jd5VXqLyws",
-      "title": "GitHub Actions will change your life!! (Docker deployment to AWS)",
+      "url": "https://www.youtube.com/watch?v=rW5sCgSSpI8",
+      "title": "Adding stuff to a Python List",
       "category": "Programming",
-      "difficulty": "intermediate",
-      "key_topics": ["GitHub Actions", "CI/CD", "Docker", "AWS deployment"],
+      "difficulty": "beginner",
+      "key_topics": ["python", "lists", "data structures", "programming"],
+      "priority": "high"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=XvbVePuP7NY",
+      "title": "you forgot the toilet paper // Python RIGHT NOW!! // EP 8",
+      "category": "Programming",
+      "difficulty": "beginner",
+      "key_topics": ["python", "loops", "programming", "logic"],
       "priority": "medium"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=jdTwCSxNINA",
+      "title": "deleting stuff from Python Lists // Python RIGHT NOW!! // EP 9",
+      "category": "Programming",
+      "difficulty": "beginner",
+      "key_topics": ["python", "lists", "data manipulation", "programming"],
+      "priority": "high"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=fR_D_KIAYrE",
+      "title": "why are TUPLES even a thing?",
+      "category": "Programming",
+      "difficulty": "beginner",
+      "key_topics": ["python", "tuples", "data structures", "programming"],
+      "priority": "medium"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=SPwyp2NG-bE",
+      "title": "you need to learn BASH Scripting RIGHT NOW!! // EP 1",
+      "category": "Linux & Command Line",
+      "difficulty": "beginner",
+      "key_topics": ["bash", "scripting", "linux", "automation"],
+      "priority": "high"
     }
   ],
   "bloomy_videos": [
