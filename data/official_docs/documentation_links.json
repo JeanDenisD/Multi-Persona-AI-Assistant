@@ -1,0 +1,966 @@
+{
+  "docker": [
+    {
+      "title": "Get Started with Docker",
+      "url": "https://docs.docker.com/get-started/",
+      "description": "Official Docker getting started guide",
+      "keywords": [
+        "docker",
+        "container",
+        "beginner",
+        "tutorial",
+        "basics",
+        "installation",
+        "hello world"
+      ],
+      "difficulty": "beginner",
+      "topics": ["containers", "setup", "fundamentals"],
+      "status": "validated"
+    },
+    {
+      "title": "Docker Engine Documentation",
+      "url": "https://docs.docker.com/engine/",
+      "description": "Complete Docker Engine reference",
+      "keywords": [
+        "docker",
+        "engine",
+        "daemon",
+        "runtime",
+        "advanced",
+        "configuration"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["engine", "configuration", "administration"],
+      "status": "validated"
+    },
+    {
+      "title": "Docker Compose",
+      "url": "https://docs.docker.com/compose/",
+      "description": "Multi-container Docker applications",
+      "keywords": [
+        "docker",
+        "compose",
+        "multi-container",
+        "orchestration",
+        "yaml",
+        "services"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["compose", "orchestration", "multi-container"],
+      "status": "validated"
+    },
+    {
+      "title": "Container Networking",
+      "url": "https://docs.docker.com/engine/network/",
+      "description": "Docker networking fundamentals",
+      "keywords": [
+        "docker",
+        "networking",
+        "bridge",
+        "overlay",
+        "containers",
+        "ports",
+        "dns"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["networking", "bridge", "ports"],
+      "status": "validated"
+    },
+    {
+      "title": "Dockerfile Reference",
+      "url": "https://docs.docker.com/reference/dockerfile/",
+      "description": "Complete Dockerfile command reference",
+      "keywords": [
+        "dockerfile",
+        "build",
+        "image",
+        "commands",
+        "from",
+        "run",
+        "copy"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["dockerfile", "build", "images"],
+      "status": "validated"
+    },
+    {
+      "title": "Docker CLI Reference",
+      "url": "https://docs.docker.com/reference/cli/docker/",
+      "description": "Docker command line interface",
+      "keywords": ["docker", "cli", "commands", "run", "exec", "ps", "images"],
+      "difficulty": "beginner",
+      "topics": ["commands", "cli", "terminal"],
+      "status": "validated"
+    }
+  ],
+  "kubernetes": [
+    {
+      "title": "Kubernetes Concepts",
+      "url": "https://kubernetes.io/docs/concepts/",
+      "description": "Core Kubernetes concepts and terminology",
+      "keywords": [
+        "kubernetes",
+        "k8s",
+        "concepts",
+        "pods",
+        "nodes",
+        "cluster",
+        "basics"
+      ],
+      "difficulty": "beginner",
+      "topics": ["concepts", "fundamentals", "architecture"],
+      "status": "validated"
+    },
+    {
+      "title": "Kubernetes Tutorials",
+      "url": "https://kubernetes.io/docs/tutorials/",
+      "description": "Step-by-step Kubernetes tutorials",
+      "keywords": [
+        "kubernetes",
+        "tutorial",
+        "learning",
+        "examples",
+        "hands-on"
+      ],
+      "difficulty": "beginner",
+      "topics": ["tutorials", "examples", "learning"],
+      "status": "validated"
+    },
+    {
+      "title": "Kubernetes Tasks",
+      "url": "https://kubernetes.io/docs/tasks/",
+      "description": "Common administrative tasks",
+      "keywords": [
+        "kubernetes",
+        "tasks",
+        "administration",
+        "management",
+        "operations"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["administration", "tasks", "operations"],
+      "status": "validated"
+    },
+    {
+      "title": "kubectl Reference",
+      "url": "https://kubernetes.io/docs/reference/kubectl/",
+      "description": "kubectl command reference",
+      "keywords": ["kubectl", "commands", "cli", "kubernetes", "command-line"],
+      "difficulty": "intermediate",
+      "topics": ["kubectl", "commands", "cli"],
+      "status": "validated"
+    },
+    {
+      "title": "Kubernetes API Reference",
+      "url": "https://kubernetes.io/docs/reference/kubernetes-api/",
+      "description": "Complete API documentation",
+      "keywords": ["kubernetes", "api", "reference", "rest", "advanced"],
+      "difficulty": "advanced",
+      "topics": ["api", "reference", "development"],
+      "status": "validated"
+    },
+    {
+      "title": "Pod Concepts",
+      "url": "https://kubernetes.io/docs/concepts/workloads/pods/",
+      "description": "Understanding Kubernetes Pods",
+      "keywords": [
+        "kubernetes",
+        "pods",
+        "workloads",
+        "containers",
+        "scheduling"
+      ],
+      "difficulty": "beginner",
+      "topics": ["pods", "workloads", "containers"],
+      "status": "validated"
+    }
+  ],
+  "excel": [
+    {
+      "title": "Excel VBA Reference",
+      "url": "https://learn.microsoft.com/en-us/office/vba/api/overview/",
+      "description": "Complete Excel VBA programming reference",
+      "keywords": [
+        "excel",
+        "vba",
+        "programming",
+        "automation",
+        "macros",
+        "visual basic"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["vba", "programming", "automation"],
+      "status": "validated"
+    },
+    {
+      "title": "Power Query Documentation",
+      "url": "https://learn.microsoft.com/en-us/power-query/",
+      "description": "Power Query M language and functions",
+      "keywords": [
+        "excel",
+        "power query",
+        "data",
+        "transformation",
+        "etl",
+        "m language"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["power-query", "data-transformation", "etl"],
+      "status": "validated"
+    },
+    {
+      "title": "Power Pivot Documentation",
+      "url": "https://support.microsoft.com/en-us/office/power-pivot-overview-and-learning-f9001958-7901-4caa-ad80-028a6d2432ed",
+      "description": "Power Pivot data modeling guide",
+      "keywords": [
+        "excel",
+        "power pivot",
+        "data model",
+        "dax",
+        "pivot tables",
+        "analysis"
+      ],
+      "difficulty": "advanced",
+      "topics": ["power-pivot", "data-modeling", "analysis"],
+      "status": "validated"
+    },
+    {
+      "title": "Excel Functions Reference",
+      "url": "https://support.microsoft.com/en-us/office/excel-functions-alphabetical-b3944572-255d-4efb-bb96-c6d90033e188",
+      "description": "Complete Excel functions reference",
+      "keywords": [
+        "excel",
+        "functions",
+        "formulas",
+        "vlookup",
+        "index",
+        "match",
+        "sumif"
+      ],
+      "difficulty": "beginner",
+      "topics": ["functions", "formulas", "calculations"],
+      "status": "validated"
+    },
+    {
+      "title": "VBA Language Reference",
+      "url": "https://learn.microsoft.com/en-us/office/vba/api/overview/language-reference",
+      "description": "VBA programming language reference",
+      "keywords": [
+        "vba",
+        "language",
+        "syntax",
+        "programming",
+        "reference",
+        "visual basic"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["vba", "language", "syntax"],
+      "status": "validated"
+    },
+    {
+      "title": "Excel Object Model",
+      "url": "https://learn.microsoft.com/en-us/office/vba/api/overview/excel",
+      "description": "Excel VBA object model reference",
+      "keywords": [
+        "excel",
+        "vba",
+        "object model",
+        "api",
+        "objects",
+        "properties",
+        "methods"
+      ],
+      "difficulty": "advanced",
+      "topics": ["object-model", "api", "advanced-vba"],
+      "status": "validated"
+    }
+  ],
+  "bloomberg": [
+    {
+      "title": "Bloomberg API Library",
+      "url": "https://www.bloomberg.com/professional/support/api-library/",
+      "description": "Bloomberg API documentation and libraries",
+      "keywords": [
+        "bloomberg",
+        "api",
+        "data",
+        "financial",
+        "programming",
+        "integration"
+      ],
+      "difficulty": "advanced",
+      "topics": ["api", "data-access", "integration"],
+      "status": "validated"
+    },
+    {
+      "title": "Bloomberg Terminal Help",
+      "url": "https://www.bloomberg.com/professional/support/software-updates/",
+      "description": "Bloomberg Terminal user guides",
+      "keywords": [
+        "bloomberg",
+        "terminal",
+        "functions",
+        "help",
+        "guide",
+        "financial"
+      ],
+      "difficulty": "beginner",
+      "topics": ["terminal", "functions", "basics"],
+      "status": "validated"
+    },
+    {
+      "title": "Bloomberg Excel Add-in",
+      "url": "https://www.bloomberg.com/professional/support/customer-support/software-updates/",
+      "description": "Bloomberg Excel integration guide",
+      "keywords": [
+        "bloomberg",
+        "excel",
+        "add-in",
+        "integration",
+        "financial data",
+        "spreadsheet"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["excel-integration", "add-in", "data-import"],
+      "status": "validated"
+    }
+  ],
+  "python": [
+    {
+      "title": "Python Tutorial",
+      "url": "https://docs.python.org/3/tutorial/",
+      "description": "Official Python tutorial for beginners",
+      "keywords": [
+        "python",
+        "tutorial",
+        "beginner",
+        "basics",
+        "learning",
+        "programming"
+      ],
+      "difficulty": "beginner",
+      "topics": ["tutorial", "basics", "fundamentals"],
+      "status": "validated"
+    },
+    {
+      "title": "Python Standard Library",
+      "url": "https://docs.python.org/3/library/",
+      "description": "Complete Python standard library reference",
+      "keywords": [
+        "python",
+        "library",
+        "modules",
+        "standard",
+        "built-in",
+        "reference"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["library", "modules", "reference"],
+      "status": "validated"
+    },
+    {
+      "title": "Python Language Reference",
+      "url": "https://docs.python.org/3/reference/",
+      "description": "Python language syntax and semantics",
+      "keywords": [
+        "python",
+        "language",
+        "syntax",
+        "grammar",
+        "reference",
+        "advanced"
+      ],
+      "difficulty": "advanced",
+      "topics": ["language", "syntax", "grammar"],
+      "status": "validated"
+    },
+    {
+      "title": "Python HOWTOs",
+      "url": "https://docs.python.org/3/howto/",
+      "description": "Python programming how-to guides",
+      "keywords": [
+        "python",
+        "howto",
+        "guides",
+        "examples",
+        "cookbook",
+        "practical"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["guides", "examples", "cookbook"],
+      "status": "validated"
+    },
+    {
+      "title": "Python FAQ",
+      "url": "https://docs.python.org/3/faq/",
+      "description": "Frequently asked Python questions",
+      "keywords": [
+        "python",
+        "faq",
+        "questions",
+        "common",
+        "problems",
+        "troubleshooting"
+      ],
+      "difficulty": "beginner",
+      "topics": ["faq", "troubleshooting", "common-issues"],
+      "status": "validated"
+    }
+  ],
+  "aws": [
+    {
+      "title": "Amazon EC2 User Guide",
+      "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html",
+      "description": "Complete EC2 instance management guide",
+      "keywords": [
+        "aws",
+        "ec2",
+        "instances",
+        "virtual machines",
+        "cloud",
+        "compute"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["ec2", "instances", "compute"],
+      "status": "validated"
+    },
+    {
+      "title": "Amazon VPC User Guide",
+      "url": "https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html",
+      "description": "Virtual Private Cloud configuration",
+      "keywords": [
+        "aws",
+        "vpc",
+        "networking",
+        "subnets",
+        "security groups",
+        "virtual"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["vpc", "networking", "security"],
+      "status": "validated"
+    },
+    {
+      "title": "Amazon S3 User Guide",
+      "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html",
+      "description": "Simple Storage Service documentation",
+      "keywords": [
+        "aws",
+        "s3",
+        "storage",
+        "buckets",
+        "objects",
+        "cloud storage"
+      ],
+      "difficulty": "beginner",
+      "topics": ["s3", "storage", "buckets"],
+      "status": "validated"
+    },
+    {
+      "title": "AWS IAM User Guide",
+      "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html",
+      "description": "Identity and Access Management",
+      "keywords": [
+        "aws",
+        "iam",
+        "security",
+        "permissions",
+        "users",
+        "roles",
+        "policies"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["iam", "security", "permissions"],
+      "status": "validated"
+    },
+    {
+      "title": "AWS Lambda Developer Guide",
+      "url": "https://docs.aws.amazon.com/lambda/latest/dg/welcome.html",
+      "description": "Serverless computing with Lambda",
+      "keywords": [
+        "aws",
+        "lambda",
+        "serverless",
+        "functions",
+        "event-driven",
+        "compute"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["lambda", "serverless", "functions"],
+      "status": "validated"
+    },
+    {
+      "title": "AWS CLI User Guide",
+      "url": "https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html",
+      "description": "Command line interface for AWS",
+      "keywords": [
+        "aws",
+        "cli",
+        "command line",
+        "terminal",
+        "automation",
+        "scripting"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["cli", "automation", "scripting"],
+      "status": "validated"
+    }
+  ],
+  "linux": [
+    {
+      "title": "Ubuntu Server Guide",
+      "url": "https://documentation.ubuntu.com/server/",
+      "description": "Ubuntu Server administration guide",
+      "keywords": [
+        "linux",
+        "ubuntu",
+        "server",
+        "administration",
+        "commands",
+        "system"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["ubuntu", "server", "administration"],
+      "status": "validated"
+    },
+    {
+      "title": "Red Hat Enterprise Linux Documentation",
+      "url": "https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/10",
+      "description": "RHEL system administration",
+      "keywords": [
+        "linux",
+        "red hat",
+        "rhel",
+        "enterprise",
+        "system",
+        "administration"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["rhel", "enterprise", "system-admin"],
+      "status": "validated"
+    },
+    {
+      "title": "Bash Manual",
+      "url": "https://www.gnu.org/software/bash/manual/bash.html",
+      "description": "GNU Bash shell reference manual",
+      "keywords": [
+        "bash",
+        "shell",
+        "scripting",
+        "terminal",
+        "commands",
+        "linux"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["bash", "shell", "scripting"],
+      "status": "validated"
+    },
+    {
+      "title": "Linux Command Line",
+      "url": "https://ubuntu.com/tutorials/command-line-for-beginners#1-overview",
+      "description": "Command line basics for beginners",
+      "keywords": [
+        "linux",
+        "command line",
+        "terminal",
+        "beginner",
+        "basics",
+        "commands"
+      ],
+      "difficulty": "beginner",
+      "topics": ["command-line", "basics", "terminal"],
+      "status": "validated"
+    }
+  ],
+  "networking": [
+    {
+      "title": "BIND 9 Documentation",
+      "url": "https://bind9.readthedocs.io/en/stable/",
+      "description": "DNS server configuration and management",
+      "keywords": [
+        "dns",
+        "bind",
+        "nameserver",
+        "domain",
+        "networking",
+        "configuration"
+      ],
+      "difficulty": "advanced",
+      "topics": ["dns", "bind", "nameserver"],
+      "status": "validated"
+    },
+    {
+      "title": "Wireshark User Guide",
+      "url": "https://www.wireshark.org/docs/wsug_html_chunked/",
+      "description": "Network protocol analyzer documentation",
+      "keywords": [
+        "wireshark",
+        "network",
+        "protocol",
+        "analyzer",
+        "packets",
+        "troubleshooting"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["wireshark", "protocol-analysis", "troubleshooting"],
+      "status": "validated"
+    },
+    {
+      "title": "pfSense Documentation",
+      "url": "https://docs.netgate.com/pfsense/en/latest/",
+      "description": "pfSense firewall configuration guide",
+      "keywords": [
+        "pfsense",
+        "firewall",
+        "security",
+        "routing",
+        "vpn",
+        "networking"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["firewall", "security", "routing"],
+      "status": "validated"
+    },
+    {
+      "title": "Cisco Networking Documentation",
+      "url": "https://developer.cisco.com/docs/",
+      "description": "Cisco networking protocols and configuration",
+      "keywords": [
+        "cisco",
+        "networking",
+        "routing",
+        "switching",
+        "protocols",
+        "enterprise"
+      ],
+      "difficulty": "advanced",
+      "topics": ["cisco", "enterprise-networking", "protocols"],
+      "status": "validated"
+    }
+  ],
+  "security": [
+    {
+      "title": "Kali Linux Documentation",
+      "url": "https://www.kali.org/docs/",
+      "description": "Penetration testing and security tools",
+      "keywords": [
+        "kali",
+        "penetration testing",
+        "security",
+        "hacking",
+        "tools",
+        "linux"
+      ],
+      "difficulty": "advanced",
+      "topics": ["penetration-testing", "security-tools", "hacking"],
+      "status": "validated"
+    },
+    {
+      "title": "Nmap Reference Guide",
+      "url": "https://nmap.org/book/",
+      "description": "Network discovery and security auditing",
+      "keywords": [
+        "nmap",
+        "network",
+        "scanning",
+        "security",
+        "discovery",
+        "auditing"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["nmap", "network-scanning", "security-auditing"],
+      "status": "validated"
+    },
+    {
+      "title": "OWASP Testing Guide",
+      "url": "https://owasp.org/www-project-web-security-testing-guide/",
+      "description": "Web application security testing",
+      "keywords": [
+        "owasp",
+        "web security",
+        "testing",
+        "vulnerabilities",
+        "application security"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["web-security", "testing", "vulnerabilities"],
+      "status": "validated"
+    },
+    {
+      "title": "NIST Cybersecurity Framework",
+      "url": "https://www.nist.gov/cyberframework",
+      "description": "Cybersecurity risk management framework",
+      "keywords": [
+        "nist",
+        "cybersecurity",
+        "framework",
+        "risk management",
+        "standards"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["cybersecurity", "framework", "risk-management"],
+      "status": "validated"
+    },
+    {
+      "title": "Metasploit Documentation",
+      "url": "https://docs.rapid7.com/metasploit/",
+      "description": "Penetration testing framework",
+      "keywords": [
+        "metasploit",
+        "penetration testing",
+        "exploits",
+        "security",
+        "framework"
+      ],
+      "difficulty": "advanced",
+      "topics": ["metasploit", "exploits", "penetration-testing"],
+      "status": "validated"
+    }
+  ],
+  "infrastructure": [
+    {
+      "title": "Terraform Documentation",
+      "url": "https://developer.hashicorp.com/terraform/docs",
+      "description": "Infrastructure as Code with Terraform",
+      "keywords": [
+        "terraform",
+        "infrastructure",
+        "iac",
+        "provisioning",
+        "cloud",
+        "automation"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["terraform", "iac", "provisioning"],
+      "status": "validated"
+    },
+    {
+      "title": "Ansible Documentation",
+      "url": "https://docs.ansible.com/ansible/latest/",
+      "description": "IT automation and configuration management",
+      "keywords": [
+        "ansible",
+        "automation",
+        "configuration",
+        "management",
+        "playbooks",
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["ansible", "automation", "configuration-management"],
+      "status": "validated"
+    },
+    {
+      "title": "GitHub Actions Documentation",
+      "url": "https://docs.github.com/en/actions",
+      "description": "CI/CD workflows and automation",
+      "keywords": [
+        "github",
+        "actions",
+        "ci/cd",
+        "automation",
+        "workflows",
+        "devops"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["github-actions", "ci-cd", "workflows"],
+      "status": "validated"
+    },
+    {
+      "title": "Proxmox VE Documentation",
+      "url": "https://pve.proxmox.com/pve-docs/",
+      "description": "Virtualization platform administration",
+      "keywords": [
+        "proxmox",
+        "virtualization",
+        "hypervisor",
+        "vm",
+        "containers",
+        "cluster"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["proxmox", "virtualization", "hypervisor"],
+      "status": "validated"
+    },
+    {
+      "title": "VMware vSphere Documentation",
+      "url": "https://techdocs.broadcom.com/",
+      "description": "Enterprise virtualization platform",
+      "keywords": [
+        "vmware",
+        "vsphere",
+        "virtualization",
+        "enterprise",
+        "datacenter",
+        "vcenter"
+      ],
+      "difficulty": "advanced",
+      "topics": ["vmware", "enterprise-virtualization", "datacenter"],
+      "status": "validated"
+    }
+  ],
+  "raspberry_pi": [
+    {
+      "title": "Raspberry Pi Documentation",
+      "url": "https://www.raspberrypi.org/documentation/",
+      "description": "Official Raspberry Pi setup and projects",
+      "keywords": [
+        "raspberry pi",
+        "pi",
+        "projects",
+        "iot",
+        "embedded",
+        "hardware"
+      ],
+      "difficulty": "beginner",
+      "topics": ["raspberry-pi", "iot", "projects"],
+      "status": "validated"
+    },
+    {
+      "title": "Pi-hole Documentation",
+      "url": "https://docs.pi-hole.net/",
+      "description": "Network-wide ad blocking documentation",
+      "keywords": [
+        "pi-hole",
+        "ad blocking",
+        "dns",
+        "network",
+        "raspberry pi",
+        "privacy"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["pi-hole", "ad-blocking", "dns"],
+      "status": "validated"
+    }
+  ],
+  "vpn": [
+    {
+      "title": "OpenVPN Documentation",
+      "url": "https://hs.openvpn.net/resource-center",
+      "description": "Open source VPN solution",
+      "keywords": [
+        "openvpn",
+        "vpn",
+        "security",
+        "tunnel",
+        "encryption",
+        "remote access"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["openvpn", "vpn", "security"],
+      "status": "validated"
+    },
+    {
+      "title": "WireGuard Documentation",
+      "url": "https://www.wireguard.com/quickstart/",
+      "description": "Modern VPN protocol implementation",
+      "keywords": [
+        "wireguard",
+        "vpn",
+        "modern",
+        "fast",
+        "security",
+        "protocol"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["wireguard", "vpn", "protocol"],
+      "status": "validated"
+    }
+  ],
+  "powershell": [
+    {
+      "title": "PowerShell Documentation",
+      "url": "https://learn.microsoft.com/en-us/powershell/",
+      "description": "PowerShell scripting and automation",
+      "keywords": [
+        "powershell",
+        "scripting",
+        "automation",
+        "windows",
+        "shell",
+        "cmdlets"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["powershell", "scripting", "automation"],
+      "status": "validated"
+    },
+    {
+      "title": "PowerShell on Linux",
+      "url": "https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-linux",
+      "description": "Cross-platform PowerShell installation",
+      "keywords": [
+        "powershell",
+        "linux",
+        "cross-platform",
+        "installation",
+        "shell"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["powershell", "linux", "cross-platform"],
+      "status": "validated"
+    }
+  ],
+  "finance": [
+    {
+      "title": "CFA Institute Standards",
+      "url": "https://rpc.cfainstitute.org/codes-and-standards",
+      "description": "Financial analysis ethical standards",
+      "keywords": [
+        "cfa",
+        "finance",
+        "ethics",
+        "standards",
+        "analysis",
+        "professional"
+      ],
+      "difficulty": "advanced",
+      "topics": ["cfa", "ethics", "standards"],
+      "status": "validated"
+    },
+    {
+      "title": "GARP Risk Management",
+      "url": "https://www.garp.org/frm",
+      "description": "Financial risk management standards",
+      "keywords": [
+        "garp",
+        "risk management",
+        "finance",
+        "frm",
+        "financial risk"
+      ],
+      "difficulty": "advanced",
+      "topics": ["risk-management", "finance", "frm"],
+      "status": "validated"
+    },
+    {
+      "title": "Federal Reserve Economic Data",
+      "url": "https://fred.stlouisfed.org/docs/api/fred/",
+      "description": "Economic data API documentation",
+      "keywords": [
+        "fred",
+        "economic data",
+        "api",
+        "federal reserve",
+        "statistics"
+      ],
+      "difficulty": "intermediate",
+      "topics": ["economic-data", "api", "statistics"],
+      "status": "validated"
+    },
+    {
+      "title": "SEC Investor Resources",
+      "url": "https://www.sec.gov/investor",
+      "description": "Securities and Exchange Commission guides",
+      "keywords": [
+        "sec",
+        "securities",
+        "investing",
+        "regulations",
+        "compliance"
+      ],
+      "difficulty": "beginner",
+      "topics": ["securities", "investing", "regulations"],
+      "status": "validated"
+    }
+  ]
+}
