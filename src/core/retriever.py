@@ -9,8 +9,10 @@ from collections import defaultdict
 import numpy as np
 
 # LangChain imports
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import Pinecone as LangchainPinecone
+from langchain_openai import OpenAIEmbeddings
+from langchain_pinecone import PineconeVectorStore
+from pinecone import Pinecone
+
 
 
 class RAGRetriever:
@@ -32,8 +34,11 @@ class RAGRetriever:
         )
         
         # Connect to vectorstore
-        self.vectorstore = LangchainPinecone.from_existing_index(
-            index_name=self.index_name,
+        pc = Pinecone(api_key=os.getenv('PINECONE_API_KEY'))
+        index = pc.Index(self.index_name)
+        
+        self.vectorstore = PineconeVectorStore(
+            index=index,
             embedding=self.embeddings
         )
         print("✅ RAG Retriever ready with general search (no personality filtering)!")
