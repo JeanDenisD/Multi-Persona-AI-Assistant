@@ -1,6 +1,7 @@
 """
 LLM-Controlled RAG - LLM decides what to retrieve
-Complete version with fixed comprehensive memory logic
+Complete version with fixed comprehensive memory logic + simple video integration
+FIXED: Float handling for start_time values
 """
 
 import os
@@ -20,7 +21,7 @@ from ..prompts.llm_controller_prompts import get_controller_prompt_template
 
 class LLMControlledRAG(Runnable):
     """
-    LLM-controlled RAG with conversation memory
+    LLM-controlled RAG with conversation memory + simple video integration
     """
     
     def __init__(self, memory_window_size: int = 10):
@@ -37,7 +38,7 @@ class LLMControlledRAG(Runnable):
             memory_key="chat_history"
         )
         
-        print(f"✅ LLM-Controlled RAG with Memory (window size: {memory_window_size})")
+        print(f"✅ LLM-Controlled RAG with Memory + Videos (window size: {memory_window_size})")
         
     def invoke(self, input_dict: Dict[str, Any]) -> str:
         """LLM-controlled RAG process with memory integration"""
@@ -296,14 +297,93 @@ class LLMControlledRAG(Runnable):
             doc_score_pairs = doc_score_pairs[:3]  # Fewer docs for context queries
             print("🧠 Limited retrieval for context-aware query")
         
+        # Store docs for video processing
+        self._last_doc_score_pairs = doc_score_pairs
+        
         # Format context
         context = self.retriever.format_context(doc_score_pairs)
         print(f"🔍 DEBUG: Final context length: {len(context)} chars")
         
         return context
     
+    def extract_video_info(self, doc_score_pairs):
+        """Extract video info from documents - FIXED for float handling"""
+        videos = {}
+        
+        for doc, score in doc_score_pairs:
+            video_id = doc.metadata.get('video_id', '')
+            video_title = doc.metadata.get('video_title', 'Unknown Video')
+            video_url = doc.metadata.get('video_url', '')
+            start_time = doc.metadata.get('start_time', 0)
+            
+            if not video_id:
+                continue
+                
+            # FIX: Convert start_time to int to handle floats
+            try:
+                start_time = int(float(start_time)) if start_time else 0
+            except (ValueError, TypeError):
+                start_time = 0
+                
+            if video_id not in videos:
+                videos[video_id] = {
+                    'title': video_title,
+                    'url': video_url,
+                    'timestamps': [],
+                    'max_score': score
+                }
+            
+            videos[video_id]['timestamps'].append({
+                'time': start_time,
+                'score': score
+            })
+            videos[video_id]['max_score'] = max(videos[video_id]['max_score'], score)
+        
+        # Sort by relevance
+        video_list = list(videos.values())
+        video_list.sort(key=lambda x: x['max_score'], reverse=True)
+        
+        return video_list
+
+    def format_video_links(self, video_list):
+        """Format video links for display"""
+        if not video_list:
+            return ""
+        
+        links = ["\n🎥 **Source Videos:**"]
+        
+        for i, video in enumerate(video_list[:3], 1):  # Max 3 videos
+            title = video['title']
+            url = video['url']
+            
+            links.append(f"{i}. **[{title}]({url})**")
+            
+            # Add best timestamps
+            timestamps = sorted(video['timestamps'], key=lambda x: x['score'], reverse=True)
+            for ts in timestamps[:2]:  # Max 2 timestamps per video
+                time_str = self.format_time(ts['time'])
+                timestamp_url = f"{url}&t={ts['time']}s" if '?' in url else f"{url}?t={ts['time']}s"
+                links.append(f"   • [{time_str}]({timestamp_url})")
+        
+        return "\n".join(links)
+
+    def format_time(self, seconds):
+        """Format seconds to MM:SS - FIXED for float handling"""
+        if not seconds:
+            return "0:00"
+        
+        # FIX: Convert to int to handle floats
+        try:
+            seconds = int(float(seconds))
+        except (ValueError, TypeError):
+            return "0:00"
+        
+        minutes = seconds // 60
+        secs = seconds % 60
+        return f"{minutes}:{secs:02d}"
+    
     def _generate_response(self, query: str, context: str, personality: str, strategy: Dict[str, Any]) -> str:
-        """Generate response with IMPROVED memory prioritization""" 
+        """Generate response with IMPROVED memory prioritization + simple video links""" 
         # Import the personality descriptions
         from ..prompts.personality_prompts import get_personality_description
         
@@ -353,6 +433,8 @@ class LLMControlledRAG(Runnable):
                     personality_name=personality.title()
                 )
             }])
+            
+            return response.content  # No video links for memory queries
             
         elif query_type == "CONTEXT_SEARCH":
             print("🧠 Generating CONTEXT-AWARE response")
@@ -416,14 +498,28 @@ class LLMControlledRAG(Runnable):
                 )
             }])
 
+        # START OF VIDEO INTEGRATION - Add video links for non-memory queries
+        final_response = response.content
+        
+        if not is_memory_focus and hasattr(self, '_last_doc_score_pairs'):
+            try:
+                video_list = self.extract_video_info(self._last_doc_score_pairs)
+                video_links = self.format_video_links(video_list)
+                if video_links:
+                    final_response += "\n\n" + video_links
+            except Exception as e:
+                print(f"⚠️ Video processing error: {e}")
+                # Continue without video links if there's an error
+        # END OF VIDEO INTEGRATION
+
         # Add documentation if needed (but not for memory-focused queries)
         if not is_memory_focus and self._should_add_docs(query):
             doc_matches = self.doc_matcher.match_documentation(query, top_k=3, min_similarity=0.2)
             doc_links = self.doc_matcher.format_documentation_links(doc_matches)
             if doc_links:
-                return response.content + "\n\n" + doc_links
+                final_response += "\n\n" + doc_links
         
-        return response.content
+        return final_response
     
     def _should_add_docs(self, query: str) -> bool:
         """Check if documentation should be added"""
