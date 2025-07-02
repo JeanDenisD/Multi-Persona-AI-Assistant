@@ -1,302 +1,162 @@
-# app.py - Production NetworkChuck AI Chatbot for Hugging Face Spaces
-# Enhanced RAG system with LangChain agents for academic compliance
+"""
+NetworkChuck AI Chatbot - Enhanced Gradio Interface (Gradio 4.44.0 Compatible)
+"""
 
 import os
-import sys
 import gradio as gr
-from dotenv import load_dotenv
+from src.core.chatbot import NetworkChuckChatbot
 
-# Load environment variables
-load_dotenv()
-
-# Add src directory to Python path for imports
-sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
-
-# Import the enhanced agent system
-try:
-    from agents.agent_system import EnhancedRAGAgent
-    AGENT_AVAILABLE = True
-    print("✅ LangChain agent system loaded successfully!")
-except Exception as e:
-    print(f"⚠️ Agent system not available: {e}")
-    print("🔄 Falling back to direct enhanced RAG system...")
-    from core.enhanced_rag import EnhancedRAGEngine
-    AGENT_AVAILABLE = False
-
-class NetworkChuckChatbot:
-    """Production chatbot with enhanced RAG and optional LangChain agents"""
-    
-    def __init__(self):
-        """Initialize the chatbot with the best available system"""
-        self.setup_system()
-        
-    def setup_system(self):
-        """Setup either agent system or direct enhanced RAG"""
-        try:
-            if AGENT_AVAILABLE:
-                # Use LangChain agent system (preferred for academic compliance)
-                self.agent = EnhancedRAGAgent()
-                self.mode = "agent"
-                print("🤖 Using LangChain Agent System with Enhanced RAG")
-            else:
-                # Fallback to direct enhanced RAG
-                self.enhanced_rag = EnhancedRAGEngine()
-                self.mode = "direct"
-                print("🚀 Using Direct Enhanced RAG System")
-                
-        except Exception as e:
-            raise Exception(f"Failed to initialize chatbot system: {e}")
-    
-    def chat(self, message: str, personality: str = "NetworkChuck", 
-             doc_search_enabled: bool = True, doc_count: int = 3) -> tuple:
-        """
-        Main chat interface that handles both agent and direct modes
-        
-        Args:
-            message: User's message
-            personality: NetworkChuck or Bloomy
-            doc_search_enabled: Whether to search documentation
-            doc_count: Number of documentation sources to include
-            
-        Returns:
-            tuple: (response, sources_info, personality_used)
-        """
-        try:
-            if self.mode == "agent":
-                # Use LangChain agent system
-                result = self.agent.chat(
-                    message=message,
-                    personality=personality.lower(),
-                    doc_search_enabled=doc_search_enabled,
-                    doc_count=doc_count
-                )
-                
-                # Extract information from agent result
-                response = result.get('response', 'No response generated')
-                sources = result.get('sources', 0)
-                tools_used = result.get('tools_used', [])
-                
-                # Create sources info
-                if tools_used:
-                    sources_info = f"🤖 Agent used: {', '.join(tools_used)} | Sources: {sources}"
-                else:
-                    sources_info = f"📝 Direct response | Sources: {sources}"
-                
-                return response, sources_info, personality
-                
-            else:
-                # Use direct enhanced RAG
-                result = self.enhanced_rag.generate_response(
-                    user_query=message,
-                    personality=personality.lower(),
-                    doc_search_enabled=doc_search_enabled,
-                    doc_count=doc_count
-                )
-                
-                # Extract information from enhanced RAG result
-                response = result.get('response', 'No response generated')
-                sources = result.get('sources', 0)
-                
-                sources_info = f"🚀 Enhanced RAG | Sources: {sources}"
-                
-                return response, sources_info, personality
-                
-        except Exception as e:
-            error_msg = f"Sorry, I encountered an error: {str(e)}"
-            return error_msg, "❌ Error occurred", personality
-
-# Initialize the chatbot system
-print("🚀 Initializing NetworkChuck AI Chatbot...")
-try:
-    chatbot = NetworkChuckChatbot()
-    print("✅ Chatbot system ready!")
-except Exception as e:
-    print(f"❌ Failed to initialize chatbot: {e}")
-    raise
-
-def chat_interface(message, personality, doc_search, doc_count, history):
-    """Gradio chat interface function"""
-    if not message.strip():
-        return history, "", "Please enter a message!"
-    
-    # Get response from chatbot
-    response, sources_info, used_personality = chatbot.chat(
-        message=message,
-        personality=personality,
-        doc_search_enabled=doc_search,
-        doc_count=doc_count
-    )
-    
-    # Add to chat history
-    history.append([message, response])
-    
-    return history, "", sources_info
+# Global variable to track current personality
+current_personality = "NetworkChuck"
 
 def create_interface():
-    """Create and configure the Gradio interface"""
+    """Create enhanced Gradio interface compatible with 4.44.0"""
+    chatbot = NetworkChuckChatbot()
+    
+    def chat_with_personality(message, history):
+        """Enhanced chat function with personality"""
+        global current_personality
+        print(f"🎭 DEBUG: Chat using personality: {current_personality}")
+        
+        # Use global personality state
+        response = chatbot.chat_response(message, history, current_personality)
+        return response
+    
+    def clear_conversation():
+        """Clear conversation and reset"""
+        return [], "🗑️ Conversation cleared"
+    
+    def switch_to_networkchuck():
+        """Switch to NetworkChuck personality"""
+        global current_personality
+        current_personality = "NetworkChuck"
+        print(f"🎭 DEBUG: Switched to NetworkChuck")
+        return "✅ Using NetworkChuck personality"
+
+    def switch_to_bloomy():
+        """Switch to Bloomy personality"""
+        global current_personality
+        current_personality = "Bloomy"
+        print(f"🎭 DEBUG: Switched to Bloomy")
+        return "✅ Using Bloomy personality"
     
     # Custom CSS for better styling
     custom_css = """
     .gradio-container {
-        max-width: 1200px !important;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-    .chat-container {
-        height: 600px;
+    .status-good {
+        background-color: #d4edda;
+        color: #155724;
+        padding: 0.75rem;
+        border-radius: 8px;
+        border: 1px solid #c3e6cb;
+        font-weight: 500;
     }
     """
     
     with gr.Blocks(
-        title="NetworkChuck AI Chatbot", 
         theme=gr.themes.Soft(),
+        title="NetworkChuck AI Assistant",
         css=custom_css
-    ) as interface:
+    ) as app:
         
         # Header
-        gr.Markdown("""
-        # 🤖 NetworkChuck AI Chatbot
-        ### Enhanced RAG System with LangChain Agents
-        
-        Ask me about **networking, cybersecurity, Linux, cloud computing** (NetworkChuck) or **Excel, finance, Bloomberg Terminal** (Bloomy)!
+        gr.HTML("""
+        <div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px; margin-bottom: 2rem;">
+            <h1>🚀 NetworkChuck AI Assistant</h1>
+            <p>Enhanced RAG system with NetworkChuck & Bloomy personalities</p>
+            <p><strong>Features:</strong> Smart Documentation • Personality Switching • Context-Aware Responses</p>
+        </div>
         """)
         
         with gr.Row():
-            with gr.Column(scale=3):
-                # Main chat interface
-                chatbot_ui = gr.Chatbot(
-                    label="Chat with NetworkChuck AI",
-                    height=500,
-                    show_copy_button=True,
-                    type="messages"  # Use modern message format
-                )
+            with gr.Column(scale=4):
+                # Personality controls with tab-style selector
+                with gr.Group():
+                    gr.HTML('<div style="margin-bottom: 0.5rem;"><strong>🎭 Choose Personality</strong></div>')
+                    
+                    # Tab-style personality selector
+                    with gr.Row():
+                        networkchuck_btn = gr.Button(
+                            "NetworkChuck",
+                            variant="primary",
+                            size="lg"
+                        )
+                        bloomy_btn = gr.Button(
+                            "Bloomy", 
+                            variant="secondary",
+                            size="lg"
+                        )
                 
-                # Message input
-                msg_input = gr.Textbox(
-                    label="Your Message",
-                    placeholder="Ask me about networking, cybersecurity, Excel, or finance!",
-                    lines=2,
-                    max_lines=4
-                )
-                
-                # Action buttons
-                with gr.Row():
-                    send_btn = gr.Button("💬 Send", variant="primary", scale=2)
-                    clear_btn = gr.Button("🗑️ Clear Chat", scale=1)
-                
-                # Status display
-                status_display = gr.Textbox(
-                    label="System Status",
-                    interactive=False,
-                    max_lines=2
-                )
+                # Status at the same level
+                with gr.Group():
+                    status_display = gr.Textbox(
+                        value="✅ Using NetworkChuck personality",
+                        label="Current Status",
+                        interactive=False,
+                        elem_classes="status-good"
+                    )
+                    
+                    clear_btn = gr.Button(
+                        "🗑️ Clear Conversation",
+                        variant="secondary",
+                        size="sm"
+                    )
             
             with gr.Column(scale=1):
-                # Controls panel
-                gr.Markdown("### 🎛️ **Controls**")
-                
-                personality_choice = gr.Radio(
-                    choices=["NetworkChuck", "Bloomy"],
-                    value="NetworkChuck",
-                    label="🎭 Personality",
-                    info="Choose your AI personality"
-                )
-                
-                doc_search_toggle = gr.Checkbox(
-                    value=True,
-                    label="📚 Smart Documentation",
-                    info="Include relevant documentation in responses"
-                )
-                
-                doc_count_slider = gr.Slider(
-                    minimum=1,
-                    maximum=5,
-                    value=3,
-                    step=1,
-                    label="📄 Documentation Sources",
-                    info="Number of documentation sources to include"
-                )
-                
                 # System info
-                gr.Markdown(f"""
-                ### 📊 **System Info**
-                
-                **Mode**: {"🤖 LangChain Agents" if AGENT_AVAILABLE else "🚀 Enhanced RAG"}
-                
-                **Features**:
-                - ✅ Universal Knowledge Access
-                - ✅ Smart Documentation Matching  
-                - ✅ Dual Personalities (NetworkChuck + Bloomy)
-                - ✅ Technical Query Detection
-                - {"✅ Agent Coordination" if AGENT_AVAILABLE else "✅ Direct Enhanced RAG"}
-                
-                **Personalities**:
-                - 🎯 **NetworkChuck**: Networking, cybersecurity, Linux, cloud
-                - 💼 **Bloomy**: Excel, finance, Bloomberg Terminal, VBA
+                gr.Markdown("""
+                ### 📊 System Info
+                **RAG Type:** LLM-Controlled  
+                **Personalities:** 2 Active  
+                **Documentation:** Auto-matched  
+                **Context Filtering:** Enabled  
                 """)
         
-        # Event handlers
-        def send_message(message, personality, doc_search, doc_count, history):
-            return chat_interface(message, personality, doc_search, doc_count, history)
+        # Main chat interface - simplified for Gradio 4.44.0
+        with gr.Row():
+            with gr.Column():
+                chat_interface = gr.ChatInterface(
+                    fn=chat_with_personality,
+                    chatbot=gr.Chatbot(
+                        height=600,
+                        show_label=False,
+                        container=True,
+                        show_copy_button=True
+                    ),
+                    textbox=gr.Textbox(
+                        placeholder="Ask about networking, cybersecurity, Excel, finance, or anything else...",
+                        scale=7
+                    )
+                )
         
-        # Send button click
-        send_btn.click(
-            fn=send_message,
-            inputs=[msg_input, personality_choice, doc_search_toggle, doc_count_slider, chatbot_ui],
-            outputs=[chatbot_ui, msg_input, status_display]
-        )
-        
-        # Enter key press
-        msg_input.submit(
-            fn=send_message,
-            inputs=[msg_input, personality_choice, doc_search_toggle, doc_count_slider, chatbot_ui],
-            outputs=[chatbot_ui, msg_input, status_display]
-        )
-        
-        # Clear chat
-        clear_btn.click(
-            fn=lambda: ([], "Chat cleared! Ready for new conversation."),
-            outputs=[chatbot_ui, status_display]
-        )
-        
-        # Example queries
+        # Footer with examples
         gr.Markdown("""
-        ### 💡 **Try These Example Queries**
-        
-        **NetworkChuck Examples**:
-        - "How do I set up a VPN server?"
-        - "Explain Docker containers and networking"
-        - "What's the difference between TCP and UDP?"
-        
-        **Bloomy Examples**:
-        - "How do I use VLOOKUP in Excel?"
-        - "Explain pivot tables for financial analysis"
-        - "What are Bloomberg Terminal shortcuts?"
+        ### 💡 Try These Examples:
+        **NetworkChuck Style:** "How to setup Docker containers?" • "VPN configuration guide" • "Network troubleshooting tips"  
+        **Bloomy Style:** "Excel VLOOKUP tutorial" • "Financial modeling best practices" • "Bloomberg Terminal shortcuts"
         """)
-    
-    return interface
+        
+        # Event handlers
+        networkchuck_btn.click(
+            fn=switch_to_networkchuck,
+            outputs=[status_display]
+        )
 
-# Create and launch the interface
+        bloomy_btn.click(
+            fn=switch_to_bloomy,
+            outputs=[status_display]
+        )
+
+        clear_btn.click(
+            fn=clear_conversation,
+            outputs=[chat_interface.chatbot, status_display]
+        )
+    
+    return app
+
+
 if __name__ == "__main__":
-    print("🌐 Creating Gradio interface...")
-    interface = create_interface()
-    
-    # Auto-detect environment: Local vs Hugging Face Spaces
-    is_huggingface = bool(os.getenv("SPACE_ID") or os.getenv("SPACE_AUTHOR_NAME"))
-    
-    if is_huggingface:
-        print("🤗 Detected Hugging Face Spaces environment")
-        server_name = "0.0.0.0"  # Required for HF Spaces
-        server_port = 7860       # HF Spaces default port
-    else:
-        print("💻 Detected local development environment")
-        server_name = "127.0.0.1"  # Localhost for local testing
-        server_port = None         # Auto-find available port
-    
-    # Launch configuration
-    interface.launch(
-        server_name=server_name,
-        server_port=server_port,
-        share=False,              # Don't create public link (HF handles this)
-        debug=False,              # Set to True for development debugging
-        show_error=True,          # Show errors in interface
-        inbrowser=not is_huggingface  # Auto-open browser locally only
-    )
+    app = create_interface()
+    app.launch()
