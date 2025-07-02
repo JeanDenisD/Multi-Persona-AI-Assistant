@@ -1,0 +1,32 @@
+{
+  "Docker Tests": [
+    "Hello! How are you?",
+    "How do I install Docker?",
+    "What about Docker Compose?",
+    "Can you remind me what we discussed about Docker?",
+    "Tell me about Docker networking",
+    "How do I create a Dockerfile?"
+  ],
+  "Excel Tests": [
+    "Tell me about Excel VLOOKUP",
+    "How do pivot tables work?",
+    "What's the difference between VLOOKUP and INDEX-MATCH?",
+    "What did we discuss about Excel earlier?",
+    "How do I use Excel formulas?",
+    "Explain Excel data analysis"
+  ],
+  "Memory Tests": [
+    "What did we talk about earlier?",
+    "Can you summarize our conversation?",
+    "Remind me about the previous topics",
+    "What was that thing you mentioned before?",
+    "Can you recall our discussion?",
+    "What topics have we covered?"
+  ],
+  "Networking Tests": [
+    "How do I setup a VPN?",
+    "What is network security?",
+    "Tell me about firewalls",
+    "How does DNS work?"
+  ]
+}
