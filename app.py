@@ -1,5 +1,5 @@
 """
-NetworkChuck AI - Enhanced UI with Collapsible Personality Selector
+NetworkChuck AI - Enhanced UI with Voice Input Added
 """
 
 import gradio as gr
@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 from src.core.chatbot import NetworkChuckChatbot
+from src.core.voice_manager import speech_to_text
 
 chatbot = NetworkChuckChatbot(memory_window_size=10)
 
@@ -51,6 +52,12 @@ def chat_with_personality(message, history, personality):
         error_msg = f"Sorry, I encountered an error: {str(e)}"
         print(f"❌ Error in chat_with_personality: {error_msg}")
         return error_msg
+
+def process_voice_input(audio_data):
+    """Process voice input and return transcribed text"""
+    if audio_data is None:
+        return ""
+    return speech_to_text(audio_data)
 
 def get_memory_status():
     try:
@@ -132,20 +139,27 @@ custom_css = """
     padding: 10px;
     margin: 10px 0;
 }
+.voice-controls {
+    background: rgba(0, 150, 100, 0.1);
+    border: 2px solid #00cc66;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px 0;
+}
 """
 
 def create_interface():
     test_set_names = list(test_sets.keys())
     
     with gr.Blocks(
-        title="🚀 NetworkChuck AI Assistant - Customizable Personalities",
+        title="🚀 NetworkChuck AI Assistant - Customizable Personalities + Voice",
         css=custom_css,
         theme=gr.themes.Soft()
     ) as interface:
         
         gr.Markdown("""
         # 🚀 NetworkChuck AI Assistant
-        ## 🧠 Memory + 🎥 Videos + 🎭 Customizable AI Personalities
+        ## 🧠 Memory + 🎥 Videos + 🎭 Customizable AI Personalities + 🎤 Voice
         
         Customize your AI experience - choose your preferred expert personas!
         """)
@@ -169,10 +183,28 @@ def create_interface():
                     description="Ask questions and I'll remember our conversation!",
                     chatbot=gr.Chatbot(height=600)
                 )
+                
+                # Voice input section - added below chat
+                with gr.Accordion("🎤 Voice Input", open=False, elem_classes=["voice-controls"]):
+                    gr.Markdown("### 🎤 Voice to Text")
+                    voice_input = gr.Audio(
+                        sources=["microphone"],
+                        type="numpy",
+                        label="Record your question"
+                    )
+                    with gr.Row():
+                        voice_btn = gr.Button("🎤→📝 Convert Only", variant="secondary", scale=1)
+                        voice_to_chat_btn = gr.Button("🎤→💬 Voice to Chat", variant="primary", scale=1)
+                    voice_output = gr.Textbox(
+                        label="Transcribed Text",
+                        placeholder="Voice will be converted to text here...",
+                        lines=2
+                    )
+                    gr.Markdown("**Usage:** Record → **Voice to Chat** (auto-fills chat input) OR Convert Only → Copy → Paste")
             
             # Right side: Personality Settings + Test Suite + Memory Controls
             with gr.Column(scale=1):
-                # Personality Configuration Section (Collapsible) - Moved here
+                # Personality Configuration Section (Collapsible)
                 with gr.Accordion("⚙️ Personality Settings", open=False, elem_classes=["personality-config"]):
                     gr.Markdown("""
                     ### 🎭 Customize Available Personalities
@@ -255,33 +287,12 @@ def create_interface():
             if not selected_personalities:
                 # Default to top 3 if nothing selected
                 choices = DEFAULT_PERSONALITIES
-                value = "NetworkChuck"
+                value = "🧔‍♂️ NetworkChuck"
             else:
                 choices = selected_personalities
                 value = selected_personalities[0]
             
             return gr.Radio(choices=choices, value=value)
-        
-        def update_personality_info(selected_personalities):
-            """Update the personality info display"""
-            if not selected_personalities:
-                selected_personalities = DEFAULT_PERSONALITIES
-            
-            info_map = {
-                "NetworkChuck": "**🚀 NetworkChuck** - Tech enthusiast, coffee educator",
-                "Bloomy": "**💼 Bloomy** - Financial analyst, Bloomberg expert", 
-                "EthicalHacker": "**🔒 EthicalHacker** - Security specialist, ethical approach",
-                "PatientTeacher": "**👨‍🏫 PatientTeacher** - Educational expert, all levels",
-                "StartupFounder": "**💡 StartupFounder** - Business leader, scalability focus",
-                "DataScientist": "**📊 DataScientist** - Analytics expert, data-driven"
-            }
-            
-            info_lines = ["### 🎭 Active Personalities:", ""]
-            for personality in selected_personalities:
-                if personality in info_map:
-                    info_lines.append(info_map[personality])
-            
-            return "\n".join(info_lines)
         
         def switch_personality(personality):
             print(f"🎭 DEBUG: Switched to {personality}")
@@ -324,10 +335,24 @@ def create_interface():
             outputs=[memory_status_display]
         )
         
+        # Voice input events
+        voice_btn.click(
+            fn=process_voice_input,
+            inputs=[voice_input],
+            outputs=[voice_output]
+        )
+        
+        # Voice input that auto-fills chat input
+        voice_to_chat_btn.click(
+            fn=process_voice_input,
+            inputs=[voice_input],
+            outputs=[chatbot_interface.textbox]
+        )
+        
         # Updated Footer
         gr.Markdown(f"""
         ---
-        **🚀 Features:** Customizable Personalities • LangChain Memory • Video Integration • {len(test_sets)} Test Sets • Demo Ready
+        **🚀 Features:** Voice Input • Customizable Personalities • LangChain Memory • Video Integration • {len(test_sets)} Test Sets • Demo Ready
         """)
     
     return interface
@@ -348,6 +373,11 @@ def test_memory_integration():
         
         final_memory = chatbot.get_memory_info()
         print(f"✅ Final memory: {final_memory}")
+        
+        # Clean up test data from memory
+        chatbot.clear_conversation_memory()
+        print("🧹 Test memory cleared - ready for real conversations")
+        
         print("🎉 LangChain Memory Integration Test PASSED!")
         return True
     except Exception as e:
@@ -355,8 +385,8 @@ def test_memory_integration():
         return False
 
 if __name__ == "__main__":
-    print("🚀 NetworkChuck AI with Customizable Personalities Starting...")
-    test_memory_integration()
+    print("🚀 NetworkChuck AI with Voice Input Starting...")
+    test_memory_integration()  # Now cleans up after itself
     
     interface = create_interface()
     interface.launch()

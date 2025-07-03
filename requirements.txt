@@ -47,3 +47,10 @@ typing-extensions              # Type hints support for agents
 
 # === DEVELOPMENT AND TESTING ===
 pytest                         # Testing framework for validation
+
+# === ElevenLabs Python SDK for Text-to-Speech ===
+elevenlabs
+
+# === For audio processing (Speech-to-Text) ===
+numpy
+wave
