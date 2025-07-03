@@ -1,7 +1,6 @@
 """
-LLM-Controlled RAG - LLM decides what to retrieve
-Complete version with fixed comprehensive memory logic + simple video integration + content filtering
-FIXED: Float handling for start_time values
+LLM-Controlled RAG - Complete version with Max Documents Control
+LLM decides what to retrieve + modern LangChain memory + advanced filtering
 """
 
 import os
@@ -10,8 +9,8 @@ from urllib import response
 from langchain.schema.runnable import Runnable, RunnableLambda
 from langchain.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
-from langchain.memory import ConversationBufferWindowMemory
-from langchain.schema import HumanMessage, AIMessage
+from langchain_core.messages import trim_messages, HumanMessage, AIMessage, SystemMessage
+from langchain.schema import HumanMessage as LegacyHumanMessage, AIMessage as LegacyAIMessage
 
 from ..core.retriever import RAGRetriever
 from ..core.personality import PersonalityPromptManager
@@ -19,9 +18,75 @@ from ..core.doc_matcher import SmartDocumentationMatcher
 from ..prompts.llm_controller_prompts import get_controller_prompt_template
 
 
+class ModernConversationMemory:
+    """Modern replacement for ConversationBufferWindowMemory using trim_messages"""
+    
+    def __init__(self, k: int = 10, memory_key: str = "chat_history", return_messages: bool = True):
+        self.k = k  # Window size
+        self.memory_key = memory_key
+        self.return_messages = return_messages
+        self.chat_memory = type('ChatMemory', (), {'messages': []})()  # Simple message store
+    
+    def save_context(self, inputs: dict, outputs: dict):
+        """Save context from this conversation to buffer"""
+        try:
+            # Add user message
+            if "input" in inputs and inputs["input"]:
+                self.chat_memory.messages.append(HumanMessage(content=str(inputs["input"])))
+            
+            # Add AI message  
+            if "output" in outputs and outputs["output"]:
+                self.chat_memory.messages.append(AIMessage(content=str(outputs["output"])))
+            
+            # Only trim if we have messages and exceed the window
+            if len(self.chat_memory.messages) > self.k * 2:
+                try:
+                    self.chat_memory.messages = trim_messages(
+                        self.chat_memory.messages,
+                        token_counter=len,  # Count number of messages
+                        max_tokens=self.k * 2,  # k conversations = k*2 messages (user + ai)
+                        strategy="last",
+                        start_on="human",
+                        include_system=True,
+                        allow_partial=False,
+                    )
+                except Exception as trim_error:
+                    print(f"⚠️ Trim error, using simple slice: {trim_error}")
+                    # Fallback: simple slice to keep last k*2 messages
+                    self.chat_memory.messages = self.chat_memory.messages[-(self.k * 2):]
+        except Exception as e:
+            print(f"⚠️ Error saving context: {e}")
+    
+    def clear(self):
+        """Clear memory contents"""
+        try:
+            self.chat_memory.messages = []
+        except Exception as e:
+            print(f"⚠️ Error clearing memory: {e}")
+            self.chat_memory = type('ChatMemory', (), {'messages': []})()
+    
+    def load_memory_variables(self, inputs: dict) -> dict:
+        """Return key-value pairs given the text input to the chain"""
+        try:
+            if self.return_messages:
+                return {self.memory_key: self.chat_memory.messages or []}
+            else:
+                # Convert messages to string format if needed
+                buffer = ""
+                for message in self.chat_memory.messages:
+                    if isinstance(message, HumanMessage):
+                        buffer += f"Human: {message.content}\n"
+                    elif isinstance(message, AIMessage):
+                        buffer += f"AI: {message.content}\n"
+                return {self.memory_key: buffer}
+        except Exception as e:
+            print(f"⚠️ Error loading memory variables: {e}")
+            return {self.memory_key: [] if self.return_messages else ""}
+
+
 class LLMControlledRAG(Runnable):
     """
-    LLM-controlled RAG with conversation memory + simple video integration + content filtering
+    LLM-controlled RAG with MODERN conversation memory + max documents control + advanced filtering
     """
     
     def __init__(self, memory_window_size: int = 10):
@@ -31,20 +96,21 @@ class LLMControlledRAG(Runnable):
         self.controller_llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0.2)
         self.generator_llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0.7)
         
-        # Initialize LangChain Memory
-        self.memory = ConversationBufferWindowMemory(
+        # Initialize MODERN LangChain Memory (replaces deprecated ConversationBufferWindowMemory)
+        self.memory = ModernConversationMemory(
             k=memory_window_size,  # Keep last N conversation turns
             return_messages=True,  # Return as message objects
             memory_key="chat_history"
         )
         
-        print(f"✅ LLM-Controlled RAG with Memory + Videos (window size: {memory_window_size})")
+        print(f"✅ LLM-Controlled RAG with MODERN Memory + Videos + Max Documents (window size: {memory_window_size})")
         
     def invoke(self, input_dict: Dict[str, Any]) -> str:
-        """LLM-controlled RAG process with memory integration"""
+        """LLM-controlled RAG process with memory integration and max documents"""
         query = input_dict["question"]
         personality = input_dict.get("personality", "networkchuck")
         gradio_history = input_dict.get("history", [])
+        max_documents = input_dict.get("max_documents", 5)
         
         # Step 1: Update memory from Gradio history if provided
         self._sync_memory_with_gradio_history(gradio_history)
@@ -52,8 +118,8 @@ class LLMControlledRAG(Runnable):
         # Step 2: LLM Controller decides what to retrieve (with memory context)
         retrieval_strategy = self._get_retrieval_strategy(query, personality)
         
-        # Step 3: Retrieve content based on LLM's decision
-        context = self._retrieve_content(query, retrieval_strategy)
+        # Step 3: Retrieve content based on LLM's decision with max documents
+        context = self._retrieve_content(query, retrieval_strategy, max_documents)
         
         # Step 4: LLM Generator creates response with personality and memory
         response = self._generate_response(query, context, personality, retrieval_strategy)
@@ -67,7 +133,7 @@ class LLMControlledRAG(Runnable):
         return response
     
     def invoke_with_filters(self, input_dict: Dict[str, Any]) -> str:
-        """Enhanced invoke with content filtering and retrieval settings"""
+        """Enhanced invoke with content filtering and max documents setting"""
         query = input_dict["question"]
         personality = input_dict.get("personality", "networkchuck")
         gradio_history = input_dict.get("history", [])
@@ -77,6 +143,10 @@ class LLMControlledRAG(Runnable):
         
         print(f"🎯 Processing with filters: {content_settings}")
         print(f"📊 Similarity threshold: {similarity_threshold}, Temperature: {llm_temperature}")
+        
+        # Extract max_documents from content_settings
+        max_documents = content_settings.get('max_documents', 5)
+        print(f"📄 Max documents: {max_documents}")
         
         # Update generator LLM temperature
         self.generator_llm.temperature = llm_temperature
@@ -90,8 +160,8 @@ class LLMControlledRAG(Runnable):
         # Step 3: LLM Controller decides what to retrieve (with memory context)
         retrieval_strategy = self._get_retrieval_strategy(query, personality, enable_analogies)
         
-        # Step 4: Retrieve content based on LLM's decision with similarity filtering
-        context = self._retrieve_content_with_filters(query, retrieval_strategy, similarity_threshold)
+        # Step 4: Retrieve content based on LLM's decision with similarity filtering and max docs
+        context = self._retrieve_content_with_filters(query, retrieval_strategy, similarity_threshold, max_documents)
         
         # Step 5: LLM Generator creates response with personality and memory
         response = self._generate_response_with_filters(query, context, personality, retrieval_strategy, content_settings)
@@ -104,30 +174,122 @@ class LLMControlledRAG(Runnable):
         
         return response
     
-    def _sync_memory_with_gradio_history(self, gradio_history: List[List[str]]):
+    def _sync_memory_with_gradio_history(self, gradio_history: List):
         """
-        Sync LangChain memory with Gradio chat history
-        gradio_history format: [[user_msg, bot_msg], [user_msg, bot_msg], ...]
+        Sync Modern LangChain memory with Gradio chat history
+        Handles both old tuple format and new messages format
         """
-        if not gradio_history:
-            return
+        try:
+            if not gradio_history:
+                print("🧠 DEBUG: No Gradio history to sync")
+                return
             
-        # Clear existing memory to avoid duplication
-        self.memory.clear()
-        
-        # Convert Gradio history to LangChain memory format
-        for turn in gradio_history:
-            if len(turn) >= 2 and turn[0] and turn[1]:  # Both user and bot messages exist
-                user_msg = turn[0]
-                bot_msg = turn[1]
+            print(f"🧠 DEBUG: Syncing memory with {len(gradio_history)} history entries")
+            print(f"🧠 DEBUG: Raw Gradio history type: {type(gradio_history)}")
+            
+            # Clear existing memory to avoid duplication
+            self.memory.clear()
+            
+            # Detect format and convert
+            if len(gradio_history) > 0:
+                first_item = gradio_history[0]
+                print(f"🧠 DEBUG: First item type: {type(first_item)} - {first_item}")
                 
-                # Add to memory
-                self.memory.save_context(
-                    {"input": user_msg},
-                    {"output": bot_msg}
+                # NEW FORMAT: OpenAI-style messages with type='messages'
+                if isinstance(first_item, dict) and 'role' in first_item:
+                    print("🧠 DEBUG: Detected NEW Gradio messages format")
+                    self._sync_messages_format(gradio_history)
+                
+                # OLD FORMAT: List/tuple pairs
+                elif isinstance(first_item, (list, tuple)):
+                    print("🧠 DEBUG: Detected OLD Gradio tuple format")
+                    self._sync_tuple_format(gradio_history)
+                
+                else:
+                    print(f"⚠️ DEBUG: Unknown Gradio format: {type(first_item)}")
+            
+            # Verify memory state after sync
+            final_messages = getattr(self.memory.chat_memory, 'messages', [])
+            print(f"🧠 DEBUG: Memory synced - {len(final_messages)} messages stored")
+            
+            # Show what's actually in memory
+            for j, msg in enumerate(final_messages[:4]):
+                msg_type = type(msg).__name__
+                content = getattr(msg, 'content', 'NO_CONTENT')[:50]
+                print(f"   Memory[{j}]: {msg_type} - '{content}...'")
+            
+        except Exception as e:
+            print(f"⚠️ Error syncing memory with Gradio history: {type(e).__name__}: {e}")
+            print(f"   Gradio history: {gradio_history}")
+            # Ensure memory is in a clean state even if sync fails
+            try:
+                self.memory.clear()
+            except:
+                self.memory = ModernConversationMemory(
+                    k=10, return_messages=True, memory_key="chat_history"
                 )
+    
+    def _sync_messages_format(self, gradio_history: List[Dict]):
+        """Handle NEW Gradio messages format: [{'role': 'user', 'content': '...'}, ...]"""
+        user_msg = None
         
-        print(f"🧠 Memory synced with {len(gradio_history)} conversation turns")
+        for i, message in enumerate(gradio_history):
+            try:
+                role = message.get('role', '')
+                content = message.get('content', '')
+                
+                if role == 'user':
+                    user_msg = content
+                    print(f"🧠 DEBUG: Stored user message: '{content[:50]}...'")
+                
+                elif role == 'assistant' and user_msg:
+                    # We have a complete user-assistant pair
+                    print(f"🧠 DEBUG: Adding conversation pair:")
+                    print(f"   User: '{user_msg[:50]}...'")
+                    print(f"   Assistant: '{content[:50]}...'")
+                    
+                    self.memory.save_context(
+                        {"input": str(user_msg)},
+                        {"output": str(content)}
+                    )
+                    user_msg = None  # Reset for next pair
+                
+            except Exception as msg_error:
+                print(f"⚠️ Error processing message {i}: {msg_error}")
+                continue
+    
+    def _sync_tuple_format(self, gradio_history: List[List]):
+        """Handle OLD Gradio tuple format: [['user_msg', 'bot_msg'], ...]"""
+        for i, turn in enumerate(gradio_history):
+            try:
+                if isinstance(turn, (list, tuple)) and len(turn) >= 2:
+                    user_msg = turn[0]
+                    bot_msg = turn[1]
+                    
+                    # Convert to string and validate
+                    if user_msg is not None and bot_msg is not None:
+                        user_str = str(user_msg).strip()
+                        bot_str = str(bot_msg).strip()
+                        
+                        if user_str and bot_str and user_str != "None" and bot_str != "None":
+                            print(f"🧠 DEBUG: Adding valid turn {i+1}")
+                            print(f"   User: '{user_str[:50]}...'")
+                            print(f"   Bot: '{bot_str[:50]}...'")
+                            
+                            self.memory.save_context(
+                                {"input": user_str},
+                                {"output": bot_str}
+                            )
+                        else:
+                            print(f"⚠️ DEBUG: Skipping turn {i+1} - empty content")
+                    else:
+                        print(f"⚠️ DEBUG: Skipping turn {i+1} - None values")
+                else:
+                    print(f"⚠️ DEBUG: Skipping turn {i+1} - invalid format")
+                    
+            except Exception as turn_error:
+                print(f"⚠️ Error processing turn {i+1}: {turn_error}")
+                continue
     
     def _get_retrieval_strategy(self, query: str, personality: str, enable_analogies: bool = True) -> Dict[str, Any]:
         """LLM decides what type of content to retrieve (with memory-aware logic and analogy control)"""
@@ -177,12 +339,12 @@ class LLMControlledRAG(Runnable):
         return any(keyword in query_lower for keyword in tech_keywords)
     
     def _get_memory_context(self) -> str:
-        """Format memory context for the controller LLM - COMPLETE VERSION"""
+        """Format memory context for the controller LLM - MODERN VERSION with error handling"""
         try:
-            # Get chat history from memory
-            messages = self.memory.chat_memory.messages
+            # Get chat history from MODERN memory
+            messages = getattr(self.memory.chat_memory, 'messages', [])
             
-            if not messages:
+            if not messages or len(messages) == 0:
                 return "No previous conversation."
             
             # Format ALL recent exchanges (not just selective ones)
@@ -190,17 +352,23 @@ class LLMControlledRAG(Runnable):
             
             # Process in pairs (human, ai) but include MORE context
             for i in range(0, len(messages), 2):
-                if i + 1 < len(messages):
-                    human_msg = messages[i].content
-                    ai_msg = messages[i + 1].content
-                    
-                    # Don't truncate - include full context for better recall
-                    context_parts.append(f"User: {human_msg}")
-                    context_parts.append(f"Assistant: {ai_msg[:300]}...")  # Increased from 200 to 300
+                try:
+                    if i + 1 < len(messages):
+                        human_msg = getattr(messages[i], 'content', str(messages[i]))
+                        ai_msg = getattr(messages[i + 1], 'content', str(messages[i + 1]))
+                        
+                        # Don't truncate - include full context for better recall
+                        context_parts.append(f"User: {human_msg}")
+                        # Safely handle AI message truncation
+                        ai_content = str(ai_msg)[:300] + "..." if len(str(ai_msg)) > 300 else str(ai_msg)
+                        context_parts.append(f"Assistant: {ai_content}")
+                except Exception as msg_error:
+                    print(f"⚠️ Error processing message {i}: {msg_error}")
+                    continue
             
             # Include MORE conversation history (not just last 3 exchanges)
             # Take last 8 messages (4 full exchanges) instead of 6
-            recent_context = "\n".join(context_parts[-8:])
+            recent_context = "\n".join(context_parts[-8:]) if context_parts else "No valid conversation context."
             
             return recent_context
             
@@ -214,9 +382,9 @@ class LLMControlledRAG(Runnable):
         This method provides better topic coverage for "what did we discuss" questions
         """
         try:
-            messages = self.memory.chat_memory.messages
+            messages = getattr(self.memory.chat_memory, 'messages', [])
             
-            if not messages:
+            if not messages or len(messages) == 0:
                 return "No previous conversation to summarize."
             
             # Identify distinct topics discussed
@@ -225,60 +393,64 @@ class LLMControlledRAG(Runnable):
             
             # Analyze all exchanges for topics
             for i in range(0, len(messages), 2):
-                if i + 1 < len(messages):
-                    user_msg = messages[i].content.lower()
-                    ai_response = messages[i + 1].content
-                    
-                    # Extract topic keywords from user questions
-                    if "docker" in user_msg:
-                        if "docker" not in [t["topic"] for t in topics_covered]:
-                            topics_covered.append({
-                                "topic": "docker", 
-                                "details": "Docker containers and containerization",
-                                "response_snippet": ai_response[:150] + "..."
-                            })
-                    
-                    if "compose" in user_msg:
-                        if "docker compose" not in [t["topic"] for t in topics_covered]:
-                            topics_covered.append({
-                                "topic": "docker compose",
-                                "details": "Docker Compose for multi-container applications", 
-                                "response_snippet": ai_response[:150] + "..."
-                            })
-                    
-                    if "excel" in user_msg or "vlookup" in user_msg:
-                        if "excel" not in [t["topic"] for t in topics_covered]:
-                            topics_covered.append({
-                                "topic": "excel",
-                                "details": "Excel VLOOKUP functions and data analysis",
-                                "response_snippet": ai_response[:150] + "..."
-                            })
-                    
-                    if "python" in user_msg:
-                        if "python" not in [t["topic"] for t in topics_covered]:
-                            topics_covered.append({
-                                "topic": "python",
-                                "details": "Python programming and scripting",
-                                "response_snippet": ai_response[:150] + "..."
-                            })
-                    
-                    if "network" in user_msg or "vpn" in user_msg:
-                        if "networking" not in [t["topic"] for t in topics_covered]:
-                            topics_covered.append({
-                                "topic": "networking",
-                                "details": "Networking, VPNs, and network security",
-                                "response_snippet": ai_response[:150] + "..."
-                            })
-                    
-                    if "linux" in user_msg or "ubuntu" in user_msg:
-                        if "linux" not in [t["topic"] for t in topics_covered]:
-                            topics_covered.append({
-                                "topic": "linux",
-                                "details": "Linux systems and administration",
-                                "response_snippet": ai_response[:150] + "..."
-                            })
-                    
-                    # Add more topic detection as needed
+                try:
+                    if i + 1 < len(messages):
+                        user_msg = getattr(messages[i], 'content', str(messages[i])).lower()
+                        ai_response = getattr(messages[i + 1], 'content', str(messages[i + 1]))
+                        
+                        # Extract topic keywords from user questions
+                        if "docker" in user_msg:
+                            if "docker" not in [t["topic"] for t in topics_covered]:
+                                topics_covered.append({
+                                    "topic": "docker", 
+                                    "details": "Docker containers and containerization",
+                                    "response_snippet": str(ai_response)[:150] + "..."
+                                })
+                        
+                        if "compose" in user_msg:
+                            if "docker compose" not in [t["topic"] for t in topics_covered]:
+                                topics_covered.append({
+                                    "topic": "docker compose",
+                                    "details": "Docker Compose for multi-container applications", 
+                                    "response_snippet": str(ai_response)[:150] + "..."
+                                })
+                        
+                        if "excel" in user_msg or "vlookup" in user_msg:
+                            if "excel" not in [t["topic"] for t in topics_covered]:
+                                topics_covered.append({
+                                    "topic": "excel",
+                                    "details": "Excel VLOOKUP functions and data analysis",
+                                    "response_snippet": str(ai_response)[:150] + "..."
+                                })
+                        
+                        if "python" in user_msg:
+                            if "python" not in [t["topic"] for t in topics_covered]:
+                                topics_covered.append({
+                                    "topic": "python",
+                                    "details": "Python programming and scripting",
+                                    "response_snippet": str(ai_response)[:150] + "..."
+                                })
+                        
+                        if "network" in user_msg or "vpn" in user_msg:
+                            if "networking" not in [t["topic"] for t in topics_covered]:
+                                topics_covered.append({
+                                    "topic": "networking",
+                                    "details": "Networking, VPNs, and network security",
+                                    "response_snippet": str(ai_response)[:150] + "..."
+                                })
+                        
+                        if "linux" in user_msg or "ubuntu" in user_msg:
+                            if "linux" not in [t["topic"] for t in topics_covered]:
+                                topics_covered.append({
+                                    "topic": "linux",
+                                    "details": "Linux systems and administration",
+                                    "response_snippet": str(ai_response)[:150] + "..."
+                                })
+                        
+                        # Add more topic detection as needed
+                except Exception as topic_error:
+                    print(f"⚠️ Error processing topic analysis for message {i}: {topic_error}")
+                    continue
             
             # Format comprehensive summary
             if topics_covered:
@@ -303,8 +475,8 @@ class LLMControlledRAG(Runnable):
                 return line.split(':', 1)[1].strip() if ':' in line else ""
         return ""
     
-    def _retrieve_content(self, query: str, strategy: Dict[str, Any]) -> str:
-        """Retrieve content based on LLM controller's strategy (with memory logic)"""
+    def _retrieve_content(self, query: str, strategy: Dict[str, Any], max_documents: int = 5) -> str:
+        """Retrieve content based on LLM controller's strategy with max documents limit"""
         
         query_type = strategy.get("query_type", "NORMAL_SEARCH")
         
@@ -319,12 +491,12 @@ class LLMControlledRAG(Runnable):
             search_terms = query  # Fallback to original query
         
         print(f"🔍 DEBUG: Search query: {search_terms}")
-        print(f"🔍 DEBUG: Strategy: {strategy}")
+        print(f"📄 DEBUG: Max documents limit: {max_documents}")
         
-        # Get documents
-        doc_score_pairs = self.retriever.retrieve_context(search_terms, top_k=5)
+        # Get documents with max_documents limit
+        doc_score_pairs = self.retriever.retrieve_context(search_terms, top_k=max_documents)
         
-        print(f"🔍 DEBUG: Found {len(doc_score_pairs)} documents before filtering")
+        print(f"🔍 DEBUG: Found {len(doc_score_pairs)} documents")
         
         # Filter out personality-biased content if controller requested
         if strategy.get("avoid_bias", "").lower() == "yes":
@@ -341,13 +513,14 @@ class LLMControlledRAG(Runnable):
                 else:
                     print(f"❌ DEBUG: Filtered out biased content with markers: {found_markers}")
             
-            doc_score_pairs = filtered_docs[:3]
-            print(f"🔍 DEBUG: {len(doc_score_pairs)} documents after filtering")
+            doc_score_pairs = filtered_docs[:max_documents]  # Respect max_documents after filtering
+            print(f"🔍 DEBUG: {len(doc_score_pairs)} documents after bias filtering")
         
-        # For context search, limit retrieval slightly
+        # For context search, might limit further
         if query_type == "CONTEXT_SEARCH":
-            doc_score_pairs = doc_score_pairs[:3]  # Fewer docs for context queries
-            print("🧠 Limited retrieval for context-aware query")
+            context_limit = min(3, max_documents)  # Context searches use fewer docs, but respect user's max
+            doc_score_pairs = doc_score_pairs[:context_limit]
+            print(f"🧠 Limited to {context_limit} docs for context-aware query")
         
         # Store docs for video processing
         self._last_doc_score_pairs = doc_score_pairs
@@ -358,8 +531,8 @@ class LLMControlledRAG(Runnable):
         
         return context
     
-    def _retrieve_content_with_filters(self, query: str, strategy: Dict[str, Any], similarity_threshold: float) -> str:
-        """Retrieve content with similarity threshold filtering"""
+    def _retrieve_content_with_filters(self, query: str, strategy: Dict[str, Any], similarity_threshold: float, max_documents: int = 5) -> str:
+        """Retrieve content with similarity threshold filtering and max documents limit"""
         
         query_type = strategy.get("query_type", "NORMAL_SEARCH")
         
@@ -375,23 +548,32 @@ class LLMControlledRAG(Runnable):
         
         print(f"🔍 DEBUG: Search query: {search_terms}")
         print(f"📊 DEBUG: Using similarity threshold: {similarity_threshold}")
+        print(f"📄 DEBUG: Max documents limit: {max_documents}")
         
-        # Get documents
-        doc_score_pairs = self.retriever.retrieve_context(search_terms, top_k=10)  # Get more initially
+        # Get documents - retrieve more initially to have options for filtering
+        initial_retrieve_count = max(10, max_documents * 2)  # Get at least 2x what we need
+        doc_score_pairs = self.retriever.retrieve_context(search_terms, top_k=initial_retrieve_count)
         
         # Apply similarity threshold filtering
         filtered_docs = [(doc, score) for doc, score in doc_score_pairs if score >= similarity_threshold]
         
         print(f"🔍 DEBUG: Found {len(doc_score_pairs)} documents, {len(filtered_docs)} above threshold {similarity_threshold}")
         
-        # Take top 5 after filtering
-        doc_score_pairs = filtered_docs[:5]
+        # Apply max_documents limit - take the top N after filtering
+        final_docs = filtered_docs[:max_documents]
+        
+        print(f"📄 DEBUG: Using {len(final_docs)} documents (max: {max_documents})")
+        
+        # Log the selected documents for debugging
+        for i, (doc, score) in enumerate(final_docs):
+            content_preview = doc.page_content[:100].replace('\n', ' ')
+            print(f"   Doc {i+1}: Score {score:.3f} - '{content_preview}...'")
         
         # Store docs for video processing
-        self._last_doc_score_pairs = doc_score_pairs
+        self._last_doc_score_pairs = final_docs
         
         # Format context
-        context = self.retriever.format_context(doc_score_pairs)
+        context = self.retriever.format_context(final_docs)
         print(f"🔍 DEBUG: Final context length: {len(context)} chars")
         
         return context
@@ -687,19 +869,101 @@ class LLMControlledRAG(Runnable):
         return any(indicator in query_lower for indicator in memory_indicators)
     
     def get_memory_summary(self) -> Dict[str, Any]:
-        """Get summary of current memory state"""
+        """Get summary of current memory state - MODERN VERSION with debugging"""
         try:
-            messages = self.memory.chat_memory.messages
+            messages = getattr(self.memory.chat_memory, 'messages', [])
+            message_count = len(messages) if messages else 0
+            
+            # Add debugging info
+            print(f"🧠 DEBUG: Memory summary - {message_count} messages")
+            for i, msg in enumerate(messages[:4]):  # Show first 4 messages for debugging
+                msg_type = type(msg).__name__
+                content_preview = getattr(msg, 'content', str(msg))[:50]
+                print(f"🧠 DEBUG: Message {i}: {msg_type} - '{content_preview}...'")
+            
             return {
-                "total_messages": len(messages),
-                "conversation_turns": len(messages) // 2,
-                "memory_window_size": self.memory.k,
-                "memory_active": len(messages) > 0
+                "total_messages": message_count,
+                "conversation_turns": message_count // 2,
+                "memory_window_size": getattr(self.memory, 'k', 10),
+                "memory_active": message_count > 0
             }
         except Exception as e:
-            return {"error": str(e), "memory_active": False}
+            print(f"⚠️ Error getting memory summary: {e}")
+            return {
+                "total_messages": 0,
+                "conversation_turns": 0, 
+                "memory_window_size": 10,
+                "memory_active": False,
+                "error": str(e)
+            }
     
     def clear_memory(self):
-        """Clear conversation memory"""
-        self.memory.clear()
-        print("🧠 Memory cleared")
+        """Clear conversation memory - MODERN VERSION with safety checks"""
+        try:
+            print("🧠 DEBUG: Clearing memory...")
+            self.memory.clear()
+            
+            # Verify memory is actually cleared
+            messages = getattr(self.memory.chat_memory, 'messages', [])
+            if len(messages) == 0:
+                print("🧠 Memory cleared successfully")
+            else:
+                print(f"⚠️ Memory not fully cleared, {len(messages)} messages remain")
+                # Force reinitialize if clear didn't work
+                self.memory = ModernConversationMemory(
+                    k=10, return_messages=True, memory_key="chat_history"
+                )
+                print("🧠 Memory reinitialized")
+                
+        except Exception as e:
+            print(f"⚠️ Error clearing memory: {e}")
+            # Force reinitialize on error
+            self.memory = ModernConversationMemory(
+                k=10, return_messages=True, memory_key="chat_history"
+            )
+            print("🧠 Memory reinitialized due to error")
+
+
+# Test functions for max documents feature
+def test_max_documents_retrieval():
+    """Test the max documents retrieval functionality"""
+    print("🧪 Testing Max Documents Retrieval...")
+    
+    try:
+        # Initialize RAG system
+        rag = LLMControlledRAG(memory_window_size=5)
+        
+        # Test different max_documents values
+        test_query = "What is Docker?"
+        test_strategy = {
+            "query_type": "NORMAL_SEARCH",
+            "search_terms": "Docker containers",
+            "reasoning": "Test query"
+        }
+        
+        for max_docs in [1, 3, 5, 8, 10]:
+            print(f"\n📄 Testing with max_documents = {max_docs}")
+            
+            context = rag._retrieve_content(test_query, test_strategy, max_docs)
+            context_length = len(context)
+            
+            print(f"   Context length: {context_length} characters")
+            
+            # Test with filters
+            filtered_context = rag._retrieve_content_with_filters(
+                test_query, test_strategy, 0.3, max_docs
+            )
+            filtered_length = len(filtered_context)
+            
+            print(f"   Filtered context length: {filtered_length} characters")
+        
+        print("✅ Max Documents retrieval test completed!")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Max Documents test failed: {e}")
+        return False
+
+if __name__ == "__main__":
+    # test_max_documents_retrieval()
+    pass  # Run tests if needed

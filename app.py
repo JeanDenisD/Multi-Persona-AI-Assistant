@@ -1,5 +1,5 @@
 """
-NetworkChuck AI - Tabbed Interface Layout
+NetworkChuck AI - Tabbed Interface Layout (Rolled Back to Working Voice System)
 """
 
 import gradio as gr
@@ -96,20 +96,21 @@ def remove_doc_sections(response_text: str) -> str:
     
     return '\n'.join(filtered_lines).strip()
 
-def chat_with_personality(message, history, personality, enable_videos, enable_docs, enable_analogies, similarity_threshold, llm_temperature):
-    """Enhanced chat function with content filtering"""
+def chat_with_personality(message, history, personality, enable_videos, enable_docs, enable_analogies, max_documents, similarity_threshold, llm_temperature):
+    """Enhanced chat function with max documents control"""
     try:
         # Remove emoji from personality for backend processing
         clean_personality = personality.split(' ', 1)[1] if ' ' in personality else personality
         
-        # Prepare content settings
+        # Prepare content settings with max_documents
         content_settings = {
             'enable_videos': enable_videos,
             'enable_docs': enable_docs,
-            'enable_analogies': enable_analogies
+            'enable_analogies': enable_analogies,
+            'max_documents': max_documents
         }
         
-        # Use new filtering method
+        # Use new filtering method with max_documents
         response = chatbot.chat_response_with_filters(
             message, 
             history, 
@@ -266,8 +267,8 @@ def create_interface():
             gr.HTML("""
             <div style="text-align: center;">
                 <h1>🚀 NetworkChuck AI Assistant</h1>
-                <h3>🧠 Memory + 🎥 Videos + 🎭 Personalities + 🎤🔊 Voice + 🎯 Smart Filtering</h3>
-                <p>Professional AI assistant with complete voice conversation and intelligent content control</p>
+                <h3>🧠 Memory + 🎥 Videos + 🎭 Personalities + 🎤🔊 Voice + 🎯 Smart Filtering + 📄 Document Control</h3>
+                <p>Professional AI assistant with advanced document retrieval control and intelligent filtering</p>
             </div>
             """)
         
@@ -290,9 +291,13 @@ def create_interface():
                         - Speech-to-Text with ElevenLabs + Whisper fallback
                         - Text-to-Speech with 6 unique personality voices
                         - Clean audio output (text-only, no URLs)
+                        - Side-by-side voice controls for easy access
+                        
+                        **🎙️ Voice Controls are located below the chat area**
                         """)
+
                     
-                    # Content Filtering Tab
+                    # Enhanced Content Filtering Tab
                     with gr.Tab("🎯 Filtering"):
                         gr.Markdown("**📋 Response Content**")
                         
@@ -314,7 +319,16 @@ def create_interface():
                             info="Allow technical analogies for non-tech topics"
                         )
                         
-                        gr.Markdown("**⚙️ AI Response Settings**")
+                        gr.Markdown("**🔍 Document Retrieval Settings**")
+                        
+                        max_documents = gr.Slider(
+                            minimum=1,
+                            maximum=15,
+                            value=5,
+                            step=1,
+                            label="Max Source Documents",
+                            info="Maximum number of documents to retrieve for context"
+                        )
                         
                         similarity_threshold = gr.Slider(
                             minimum=0.1,
@@ -324,6 +338,8 @@ def create_interface():
                             label="Content Relevance",
                             info="Higher = more relevant results only"
                         )
+                        
+                        gr.Markdown("**⚙️ AI Response Settings**")
                         
                         llm_temperature = gr.Slider(
                             minimum=0.1,
@@ -336,9 +352,10 @@ def create_interface():
                         
                         gr.Markdown("""
                         **💡 Tips:**
+                        - **Max Documents**: More = comprehensive but slower, Less = focused but faster
+                        - **Relevance**: Higher = fewer but better results
+                        - **Creativity**: Lower = more factual responses
                         - Disable videos/docs for cleaner responses
-                        - Higher relevance = fewer but better results
-                        - Lower creativity = more factual responses
                         """)
                     
                     # Test Suite Tab
@@ -402,94 +419,88 @@ def create_interface():
             # Main Chat Area
             with gr.Column(scale=3, elem_classes=["main-chat"]):
                 
-                # Personality Settings (on top of chat)
+                # Personality Settings (on top of chat) - All 6 Personalities
                 personality_radio = gr.Radio(
-                    choices=DEFAULT_PERSONALITIES,
+                    choices=ALL_PERSONALITIES,
                     value="🧔‍♂️ NetworkChuck",
                     label="🎭 Active AI Personality",
-                    info="Choose your expert persona"
+                    info="Choose your expert persona - all personalities available"
                 )
                 
-                # Collapsible Personality Traits (below radio button)
-                with gr.Accordion("📋 Personality Traits & Customization", open=False, elem_classes=["personality-traits"]):
+                # Simplified Personality Traits (no customization needed)
+                with gr.Accordion("📋 Personality Traits & Descriptions", open=False, elem_classes=["personality-traits"]):
                     gr.Markdown("""
-                    **📊 Current Personality Strength Scores:**
+                    **📊 All Available Personalities:**
                     - 🧔‍♂️ **NetworkChuck** (8/10) - Energetic tech enthusiast with coffee analogies
                     - 👨‍💼 **Bloomy** (6/10) - Professional financial analyst with structured approach  
                     - 👩‍🔬 **DataScientist** (8/10) - Analytical expert with evidence-based methodology
                     - 🤵 **StartupFounder** (10/10) - Business leader focused on scalability
                     - 👩‍💻 **EthicalHacker** (8/10) - Security specialist with ethical approach
                     - 👩‍🏫 **PatientTeacher** (4/10) - Educational expert (demonstrates prompt engineering needs)
-                    """)
                     
-                    personality_selector = gr.CheckboxGroup(
-                        choices=ALL_PERSONALITIES,
-                        value=DEFAULT_PERSONALITIES,
-                        label="Customize Available Personalities",
-                        info="Select which personalities to show in the dropdown above"
-                    )
+                    **All personalities are always available in the selection above.**
+                    """)
                 
-                # Chat Interface
+                # Enhanced Chat Interface with max_documents
                 chatbot_interface = gr.ChatInterface(
                     fn=chat_with_personality,
+                    type='messages',
                     additional_inputs=[
                         personality_radio, 
                         enable_videos, 
                         enable_docs, 
                         enable_analogies, 
+                        max_documents,
                         similarity_threshold, 
                         llm_temperature
                     ],
                     title="💬 AI Conversation",
                     description="Ask questions and I'll remember our conversation with intelligent filtering!",
-                    chatbot=gr.Chatbot(height=500)
+                    chatbot=gr.Chatbot(height=500, type='messages')
                 )
                 
-                # Voice Output Area
-                with gr.Row():
-                    tts_audio = gr.Audio(
-                        label="🔊 AI Voice Response",
-                        autoplay=True,
-                        visible=True,
-                        scale=3
-                    )
-                    generate_voice_btn = gr.Button(
-                        "🔊 Generate Voice",
-                        variant="primary",
-                        size="lg",
-                        scale=1
-                    )
+                # REARRANGED: Audio Controls Side by Side
+                gr.Markdown("### 🎤🔊 Voice Controls")
                 
-                # Voice Input Section
-                with gr.Accordion("🎤 Voice Input", open=False):
-                    gr.Markdown("### 🎤 Speech to Text")
-                    voice_input = gr.Audio(
-                        sources=["microphone"],
-                        type="numpy",
-                        label="Record your question"
-                    )
-                    with gr.Row():
-                        voice_btn = gr.Button("🎤→📝 Convert Only", variant="secondary")
-                        voice_to_chat_btn = gr.Button("🎤→💬 Voice to Chat", variant="primary")
-                    voice_output = gr.Textbox(
-                        label="Transcribed Text",
-                        placeholder="Voice will be converted to text here...",
-                        lines=2
-                    )
-                    gr.Markdown("**🎤 Voice Workflow:** Record → Convert OR Voice to Chat → AI responds with voice")
+                with gr.Row():
+                    # Left Side: Speech-to-Text (STT)
+                    with gr.Column(scale=1):
+                        gr.Markdown("#### 🎤 Speech to Text")
+                        voice_input = gr.Audio(
+                            sources=["microphone"],
+                            type="numpy",
+                            label="Record your question"
+                        )
+                        
+                        with gr.Row():
+                            voice_btn = gr.Button("🎤→📝 Convert Only", variant="secondary", scale=1)
+                            voice_to_chat_btn = gr.Button("🎤→💬 Voice to Chat", variant="primary", scale=1)
+                        
+                        voice_output = gr.Textbox(
+                            label="Transcribed Text",
+                            placeholder="Voice will be converted to text here...",
+                            lines=2
+                        )
+                    
+                    # Right Side: Text-to-Speech (TTS)
+                    with gr.Column(scale=1):
+                        gr.Markdown("#### 🔊 Text to Speech")
+                        tts_audio = gr.Audio(
+                            label="AI Voice Response",
+                            autoplay=True,
+                            visible=True
+                        )
+                        
+                        generate_voice_btn = gr.Button(
+                            "🔊 Generate Voice",
+                            variant="primary",
+                            size="lg"
+                        )
+                
+                gr.Markdown("**🎤 Voice Workflow:** Record → Convert OR Voice to Chat → AI responds → Generate Voice")
+
         
         # Event Handlers
-        
-        def update_personality_radio(selected_personalities):
-            """Update the personality radio options based on selection"""
-            if not selected_personalities:
-                choices = DEFAULT_PERSONALITIES
-                value = "🧔‍♂️ NetworkChuck"
-            else:
-                choices = selected_personalities
-                value = selected_personalities[0]
-            
-            return gr.Radio(choices=choices, value=value)
         
         def update_tests_on_selection(test_set_name):
             """Update test table when test set changes"""
@@ -497,28 +508,28 @@ def create_interface():
             return [[i+1, test] for i, test in enumerate(tests)]
         
         def generate_voice_for_last_response(history, personality, voice_enabled):
-            """Generate voice for the last AI response"""
+            """FIXED: Generate voice for the last AI response"""
             if not history or not voice_enabled:
-                return gr.Audio(visible=False)
+                return None
             
             try:
-                last_response = history[-1][1] if len(history) > 0 else ""
+                # Get the last bot message from history
+                last_response = history[-1]["content"] if len(history) > 0 and history[-1].get("role") == "assistant" else ""
+                
+                # Fallback for older tuple format
+                if not last_response and isinstance(history[-1], (list, tuple)) and len(history[-1]) >= 2:
+                    last_response = history[-1][1]
+                
                 if last_response:
                     audio_file = generate_voice_response(last_response, personality)
                     if audio_file:
-                        return gr.Audio(value=audio_file, visible=True)
-            except:
-                pass
+                        return audio_file
+            except Exception as e:
+                print(f"⚠️ Voice generation error: {e}")
             
-            return gr.Audio(visible=False)
+            return None
         
         # Connect events
-        personality_selector.change(
-            fn=update_personality_radio,
-            inputs=[personality_selector],
-            outputs=[personality_radio]
-        )
-        
         test_set_selector.change(
             fn=update_tests_on_selection,
             inputs=[test_set_selector],
@@ -548,7 +559,7 @@ def create_interface():
             outputs=[chatbot_interface.textbox]
         )
         
-        # Manual voice generation button
+        # FIXED: Manual voice generation button
         generate_voice_btn.click(
             fn=generate_voice_for_last_response,
             inputs=[chatbot_interface.chatbot, personality_radio, voice_enabled],
@@ -559,7 +570,7 @@ def create_interface():
         gr.HTML("""
         <div style="text-align: center; padding: 20px; margin-top: 20px; background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%); border-radius: 12px; color: #e2e8f0;">
             <h3>🚀 Professional AI Assistant Features</h3>
-            <p><strong>Voice:</strong> Bidirectional conversation • <strong>Memory:</strong> LangChain integration • <strong>Filtering:</strong> Smart content control • <strong>Personalities:</strong> 6 unique experts • <strong>Sources:</strong> Videos + Documentation</p>
+            <p><strong>Voice:</strong> Bidirectional conversation • <strong>Memory:</strong> LangChain integration • <strong>Filtering:</strong> Smart content control • <strong>Personalities:</strong> 6 unique experts • <strong>Sources:</strong> Videos + Documentation • <strong>Documents:</strong> User-controlled retrieval (1-15 docs)</p>
         </div>
         """)
     
