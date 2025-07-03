@@ -1,6 +1,5 @@
 """
-NetworkChuck AI - Optimized Layout with Test Suite on Right
-Professional testing framework with enhanced UI and fixed readability
+NetworkChuck AI - Enhanced UI with Collapsible Personality Selector
 """
 
 import gradio as gr
@@ -43,8 +42,10 @@ def load_test_cases(file_path="data/test_cases.json"):
 def chat_with_personality(message, history, personality):
     """Clean chat function"""
     try:
-        print(f"🎭 DEBUG: Chat using personality: {personality}")
-        response = chatbot.chat_response(message, history, personality)
+        # Remove emoji from personality for backend processing
+        clean_personality = personality.split(' ', 1)[1] if ' ' in personality else personality
+        print(f"🎭 DEBUG: Chat using personality: {clean_personality}")
+        response = chatbot.chat_response(message, history, clean_personality)
         return response
     except Exception as e:
         error_msg = f"Sorry, I encountered an error: {str(e)}"
@@ -73,10 +74,33 @@ def clear_memory():
         print(f"❌ Error clearing memory: {e}")
         return f"**❌ Error:** {e}"
 
+def toggle_personalities(selected_personalities):
+    """Update available personalities based on user selection"""
+    if not selected_personalities:
+        # If none selected, default to the top 3
+        return gr.Radio(choices=["NetworkChuck", "StartupFounder", "EthicalHacker"], 
+                       value="NetworkChuck")
+    else:
+        return gr.Radio(choices=selected_personalities, 
+                       value=selected_personalities[0])
+
 # Load test sets from external file
 test_sets = load_test_cases()
 
-# Enhanced CSS with fixes for both issues
+# All available personalities with icons
+ALL_PERSONALITIES = [
+    "🧔‍♂️ NetworkChuck", 
+    "👨‍💼 Bloomy", 
+    "👩‍💻 EthicalHacker", 
+    "👩‍🏫 PatientTeacher", 
+    "🤵 StartupFounder", 
+    "👩‍🔬 DataScientist"
+]
+
+# Default showcase personalities (strong ones)
+DEFAULT_PERSONALITIES = ["🧔‍♂️ NetworkChuck", "👨‍💼 Bloomy", "👩‍🔬 DataScientist"]
+
+# Enhanced CSS
 custom_css = """
 .gradio-container {
     font-family: 'Arial', sans-serif;
@@ -101,32 +125,38 @@ custom_css = """
     padding: 10px;
     margin: 10px 0;
 }
+.personality-config {
+    background: rgba(100, 0, 200, 0.1);
+    border: 2px solid #6600cc;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px 0;
+}
 """
 
 def create_interface():
-    personalities = ["NetworkChuck", "Bloomy"]
     test_set_names = list(test_sets.keys())
     
     with gr.Blocks(
-        title="🚀 NetworkChuck AI Assistant with Test Suite",
+        title="🚀 NetworkChuck AI Assistant - Customizable Personalities",
         css=custom_css,
         theme=gr.themes.Soft()
     ) as interface:
         
         gr.Markdown("""
         # 🚀 NetworkChuck AI Assistant
-        ## 🧠 LangChain Memory + 🧪 Professional Test Suite
+        ## 🧠 Memory + 🎥 Videos + 🎭 Customizable AI Personalities
         
-        Optimized layout: Chat on left, test suite and controls on right!
+        Customize your AI experience - choose your preferred expert personas!
         """)
         
-        # Radio buttons for personalities
-        with gr.Row():
-            personality_radio = gr.Radio(
-                choices=personalities,
-                value="NetworkChuck",
-                label="🎭 Choose AI Personality"
-            )
+        # Active Personality Selector (Full width like chatbox)
+        personality_radio = gr.Radio(
+            choices=DEFAULT_PERSONALITIES,
+            value="🧔‍♂️ NetworkChuck",
+            label="🎭 Active AI Personality",
+            info="Select your current expert persona"
+        )
         
         # Main Layout: Chat + Right Panel
         with gr.Row():
@@ -135,12 +165,37 @@ def create_interface():
                 chatbot_interface = gr.ChatInterface(
                     fn=chat_with_personality,
                     additional_inputs=[personality_radio],
-                    title="💬 Chat with Memory",
-                    description="Ask questions and I'll remember our conversation!"
+                    title="💬 Chat with Memory + Videos",
+                    description="Ask questions and I'll remember our conversation!",
+                    chatbot=gr.Chatbot(height=600)
                 )
             
-            # Right side: Test Suite + Memory Controls (smaller)
+            # Right side: Personality Settings + Test Suite + Memory Controls
             with gr.Column(scale=1):
+                # Personality Configuration Section (Collapsible) - Moved here
+                with gr.Accordion("⚙️ Personality Settings", open=False, elem_classes=["personality-config"]):
+                    gr.Markdown("""
+                    ### 🎭 Customize Available Personalities
+                    Select which AI personalities you want to use.
+                    """)
+                    
+                    personality_selector_right = gr.CheckboxGroup(
+                        choices=ALL_PERSONALITIES,
+                        value=DEFAULT_PERSONALITIES,
+                        label="Available Personalities",
+                        info="Select personalities to show"
+                    )
+                    
+                    gr.Markdown("""
+                    **📊 Strength Scores:**
+                    - 🧔‍♂️ **NetworkChuck** (8/10)
+                    - 👨‍💼 **Bloomy** (6/10) 
+                    - 👩‍🔬 **DataScientist** (8/10)
+                    - 🤵 **StartupFounder** (10/10)
+                    - 👩‍💻 **EthicalHacker** (8/10)
+                    - 👩‍🏫 **PatientTeacher** (4/10)
+                    """)
+                
                 # Professional Test Suite Section
                 with gr.Accordion("🧪 Test Suite", open=True, elem_classes=["test-suite"]):
                     gr.Markdown("### 📋 Quick Tests")
@@ -154,7 +209,6 @@ def create_interface():
                     
                     gr.Markdown("**Test Cases:**")
                     
-                    # Test cases table (FIXED - disabled interactive but kept text selectable)
                     initial_tests = test_sets.get(test_set_names[0], []) if test_set_names else []
                     test_table = gr.DataFrame(
                         value=[[i+1, test] for i, test in enumerate(initial_tests)],
@@ -172,42 +226,62 @@ def create_interface():
                     4. Perfect for demos!
                     """)
                 
-                # Memory Controls
-                gr.Markdown("### 🧠 Memory Controls")
-                
-                # FIXED: Better contrast for memory status
-                memory_status_display = gr.Markdown(
-                    value="""**🧠 Memory Status:** Ready
+                # Memory Controls (Collapsible)
+                with gr.Accordion("🧠 Memory Controls", open=False):
+                    memory_status_display = gr.Markdown(
+                        value="""**🧠 Memory Status:** Ready
 **📊 State:** Initialized  
 **🔧 Window:** 10 turns""",
-                    elem_classes=["memory-status"]
-                )
-                
-                with gr.Column():
-                    refresh_memory_btn = gr.Button(
-                        "🔄 Refresh Status",
-                        variant="secondary",
-                        size="sm"
+                        elem_classes=["memory-status"]
                     )
                     
-                    clear_memory_btn = gr.Button(
-                        "🧠 Clear Memory",
-                        variant="stop", 
-                        size="sm"
-                    )
-                
-                # Compact Personality Info
-                gr.Markdown("""
-                ### 🎭 Personalities:
-                
-                **🚀 NetworkChuck**
-                Tech enthusiast, coffee educator
-                
-                **💼 Bloomy**
-                Financial analyst, Bloomberg expert
-                """)
+                    with gr.Column():
+                        refresh_memory_btn = gr.Button(
+                            "🔄 Refresh Status",
+                            variant="secondary",
+                            size="sm"
+                        )
+                        
+                        clear_memory_btn = gr.Button(
+                            "🧠 Clear Memory",
+                            variant="stop", 
+                            size="sm"
+                        )
         
         # Event Handlers
+        
+        def update_personality_radio(selected_personalities):
+            """Update the personality radio options based on selection"""
+            if not selected_personalities:
+                # Default to top 3 if nothing selected
+                choices = DEFAULT_PERSONALITIES
+                value = "NetworkChuck"
+            else:
+                choices = selected_personalities
+                value = selected_personalities[0]
+            
+            return gr.Radio(choices=choices, value=value)
+        
+        def update_personality_info(selected_personalities):
+            """Update the personality info display"""
+            if not selected_personalities:
+                selected_personalities = DEFAULT_PERSONALITIES
+            
+            info_map = {
+                "NetworkChuck": "**🚀 NetworkChuck** - Tech enthusiast, coffee educator",
+                "Bloomy": "**💼 Bloomy** - Financial analyst, Bloomberg expert", 
+                "EthicalHacker": "**🔒 EthicalHacker** - Security specialist, ethical approach",
+                "PatientTeacher": "**👨‍🏫 PatientTeacher** - Educational expert, all levels",
+                "StartupFounder": "**💡 StartupFounder** - Business leader, scalability focus",
+                "DataScientist": "**📊 DataScientist** - Analytics expert, data-driven"
+            }
+            
+            info_lines = ["### 🎭 Active Personalities:", ""]
+            for personality in selected_personalities:
+                if personality in info_map:
+                    info_lines.append(info_map[personality])
+            
+            return "\n".join(info_lines)
         
         def switch_personality(personality):
             print(f"🎭 DEBUG: Switched to {personality}")
@@ -222,6 +296,12 @@ def create_interface():
             return table_data
         
         # Connect events
+        personality_selector_right.change(
+            fn=update_personality_radio,
+            inputs=[personality_selector_right],
+            outputs=[personality_radio]
+        )
+        
         test_set_selector.change(
             fn=update_tests_on_selection,
             inputs=[test_set_selector],
@@ -244,10 +324,10 @@ def create_interface():
             outputs=[memory_status_display]
         )
         
-        # Compact Footer
+        # Updated Footer
         gr.Markdown(f"""
         ---
-        **🚀 Features:** {len(test_sets)} test sets • LangChain Memory • Multiple Personalities • Demo Ready
+        **🚀 Features:** Customizable Personalities • LangChain Memory • Video Integration • {len(test_sets)} Test Sets • Demo Ready
         """)
     
     return interface
@@ -275,7 +355,7 @@ def test_memory_integration():
         return False
 
 if __name__ == "__main__":
-    print("🚀 NetworkChuck AI with Optimized Layout Starting...")
+    print("🚀 NetworkChuck AI with Customizable Personalities Starting...")
     test_memory_integration()
     
     interface = create_interface()

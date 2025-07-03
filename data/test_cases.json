@@ -15,6 +15,38 @@
     "How do I use Excel formulas?",
     "Explain Excel data analysis"
   ],
+  "Security Tests": [
+    "How do I secure my network?",
+    "What is penetration testing?",
+    "Tell me about common vulnerabilities",
+    "How do I protect against malware?",
+    "What are the best security practices?",
+    "Explain ethical hacking methodology"
+  ],
+  "Learning Tests": [
+    "I'm new to programming, where do I start?",
+    "Explain machine learning in simple terms",
+    "How can I learn Python effectively?",
+    "What's the best way to understand databases?",
+    "I'm struggling with networking concepts",
+    "Can you help me understand APIs?"
+  ],
+  "Business Tests": [
+    "How do I validate a business idea?",
+    "What technology stack for a startup?",
+    "How to build an MVP?",
+    "What are the key metrics to track?",
+    "How do I scale my application?",
+    "Tell me about lean startup methodology"
+  ],
+  "Data Science Tests": [
+    "How do I analyze this dataset?",
+    "What's the difference between correlation and causation?",
+    "How do I choose the right statistical test?",
+    "Explain machine learning model evaluation",
+    "What are the best data visualization practices?",
+    "How do I handle missing data?"
+  ],
   "Memory Tests": [
     "What did we talk about earlier?",
     "Can you summarize our conversation?",
