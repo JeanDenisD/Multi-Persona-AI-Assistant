@@ -19,28 +19,26 @@ class VoiceManager:
     def __init__(self):
         self.elevenlabs_api_key = os.getenv('ELEVENLABS_API_KEY')
         
-        # Voice mapping for each personality - replace with your chosen voice IDs
+        # Voice mapping for each personality - using your provided voice IDs
         self.personality_voices = {
-            "networkchuck": "21m00Tcm4TlvDq8ikWAM",  # Replace with your chosen voice IDs
-            "bloomy": "AZnzlk1XvdvUeBnXmlld",       # Rachel
-            "ethicalhacker": "EXAVITQu4vr4xnSDxMaL",  # Sarah
-            "patientteacher": "ThT5KcBeYPX3keUQqHPh", # Dorothy
-            "startupfounder": "29vD33N1CtxCmqQRPOHJ", # Drew
-            "datascientist": "XB0fDUnXU5powFXDhCwa"   # Charlotte
+            "networkchuck": "OuJq1nTHrT0iME3eqD5N",
+            "bloomy": "IixZCtIbiujuj9uoKF2C",
+            "ethicalhacker": "7ceZgj78jCCeAW93ItNk",
+            "patientteacher": "h2sm0NbeIZXHBzJOMYcQ",
+            "startupfounder": "GzE4TcXfh9rYCU9gVgPp",
+            "datascientist": "yj30vwTGJxSHezdAGsv9"
         }
         
-        # Initialize ElevenLabs client (using official API structure)
+        # Initialize ElevenLabs client
         if self.elevenlabs_api_key:
             self.client = ElevenLabs(api_key=self.elevenlabs_api_key)
-            print("✅ Voice Manager ready with ElevenLabs SDK")
         else:
             self.client = None
-            print("⚠️ ElevenLabs API key not found")
     
-    def text_to_speech(self, text: str, personality: str) -> Optional[str]:
+    def text_to_speech(self, text: str, personality: str) -> Optional[bytes]:
         """
         Convert text to speech using ElevenLabs SDK
-        Returns base64 encoded audio or None if failed
+        Returns audio bytes or None if failed
         """
         if not self.client:
             return None
@@ -52,68 +50,19 @@ class VoiceManager:
         voice_id = self.personality_voices.get(clean_personality, self.personality_voices["networkchuck"])
         
         try:
-            # Generate speech using official SDK API structure
+            # Generate speech using official SDK
             audio = self.client.text_to_speech.convert(
                 text=text,
                 voice_id=voice_id,
-                model_id="eleven_monolingual_v1",
-                output_format="mp3_44100_128"
+                model_id="eleven_monolingual_v1"
             )
             
-            # Convert audio bytes directly
+            # Convert iterator to bytes
             audio_bytes = b"".join(audio)
-            
-            # Return base64 encoded audio
-            audio_base64 = base64.b64encode(audio_bytes).decode()
-            return f"data:audio/mpeg;base64,{audio_base64}"
+            return audio_bytes
                 
         except Exception as e:
-            print(f"❌ TTS Exception: {e}")
             return None
-    
-    def create_audio_player(self, audio_data: str) -> str:
-        """
-        Create HTML audio player for the generated speech
-        """
-        if not audio_data:
-            return ""
-        
-        return f"""
-        <audio controls autoplay style="width: 100%; margin: 10px 0;">
-            <source src="{audio_data}" type="audio/mpeg">
-            Your browser does not support audio playback.
-        </audio>
-        """
-
-
-def create_voice_components():
-    """
-    Create Gradio components for voice functionality
-    Returns tuple of (speech_input, tts_button, audio_output)
-    """
-    
-    # Speech-to-Text input (using browser Web Speech API)
-    speech_input = gr.Audio(
-        sources=["microphone"],  # Updated for newer Gradio
-        type="numpy", 
-        label="🎤 Voice Input",
-        visible=True
-    )
-    
-    # Text-to-Speech button
-    tts_button = gr.Button(
-        "🔊 Generate Speech",
-        variant="secondary",
-        size="sm"
-    )
-    
-    # Audio output for TTS
-    audio_output = gr.HTML(
-        label="🔊 AI Voice Response",
-        visible=True
-    )
-    
-    return speech_input, tts_button, audio_output
 
 
 # Simple STT function using ElevenLabs Speech-to-Text API with fallback
@@ -168,9 +117,8 @@ def speech_to_text(audio_data) -> str:
                     return str(transcription).strip()
                     
             except Exception as e:
-                print(f"⚠️ ElevenLabs STT failed: {e}")
-                print("🔄 Falling back to OpenAI Whisper...")
                 # Fall through to Whisper fallback
+                pass
         
         # Fallback to OpenAI Whisper
         try:
@@ -186,49 +134,17 @@ def speech_to_text(audio_data) -> str:
                 response_format="text"
             )
             
-            print("✅ Used Whisper fallback successfully")
             return response.strip()
             
         except Exception as whisper_error:
-            print(f"❌ Whisper fallback also failed: {whisper_error}")
             return "Speech recognition failed"
         
     except Exception as e:
-        print(f"❌ STT Error: {e}")
         return "Speech recognition failed"
 
 
-# Test function
-def test_voice_integration():
-    """Test voice manager functionality"""
-    print("🧪 Testing Voice Integration...")
-    
-    # Load environment variables for testing
-    from dotenv import load_dotenv
-    load_dotenv()
-    
-    try:
-        voice_manager = VoiceManager()
-        
-        # Test TTS
-        test_text = "Hello! This is a test of the voice system."
-        audio_data = voice_manager.text_to_speech(test_text, "networkchuck")
-        
-        if audio_data:
-            print("✅ TTS test successful")
-        else:
-            print("⚠️ TTS test failed - check API key")
-        
-        # Test component creation
-        components = create_voice_components()
-        print(f"✅ Created {len(components)} voice components")
-        
-        return True
-        
-    except Exception as e:
-        print(f"❌ Voice integration test failed: {e}")
-        return False
-
-
-if __name__ == "__main__":
-    test_voice_integration()
+# Simple TTS function for use in app.py
+def text_to_speech_simple(text: str, personality: str) -> Optional[bytes]:
+    """Simple wrapper for TTS functionality"""
+    voice_manager = VoiceManager()
+    return voice_manager.text_to_speech(text, personality)

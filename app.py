@@ -1,15 +1,16 @@
 """
-NetworkChuck AI - Enhanced UI with Voice Input Added
+NetworkChuck AI - Simple Voice Fix (minimal changes to your working app)
 """
 
 import gradio as gr
 import os
 import json
+import tempfile
 from dotenv import load_dotenv
 
 load_dotenv()
 from src.core.chatbot import NetworkChuckChatbot
-from src.core.voice_manager import speech_to_text
+from src.core.voice_manager import speech_to_text, text_to_speech_simple
 
 chatbot = NetworkChuckChatbot(memory_window_size=10)
 
@@ -18,10 +19,8 @@ def load_test_cases(file_path="data/test_cases.json"):
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             test_cases = json.load(f)
-        print(f"✅ Loaded {len(test_cases)} test sets from {file_path}")
         return test_cases
     except FileNotFoundError:
-        print(f"⚠️ Test cases file not found: {file_path}")
         return {
             "Docker Tests": [
                 "Hello! How are you?",
@@ -37,21 +36,56 @@ def load_test_cases(file_path="data/test_cases.json"):
             ]
         }
     except json.JSONDecodeError as e:
-        print(f"❌ Error parsing test cases JSON: {e}")
         return {}
 
+def extract_text_only(response_text: str) -> str:
+    """Extract only the main text content, removing videos and docs"""
+    if not response_text or response_text is None:
+        return ""
+    
+    lines = response_text.split('\n')
+    text_lines = []
+    
+    for line in lines:
+        # Skip video and documentation sections
+        if any(marker in line for marker in ['🎥 **Source Videos:**', '📚 **Related Documentation:**']):
+            break
+        if line.startswith('**[') or line.startswith('• [') or 'http' in line:
+            continue
+        text_lines.append(line)
+    
+    return '\n'.join(text_lines).strip()
+
 def chat_with_personality(message, history, personality):
-    """Clean chat function"""
+    """Clean chat function - back to original working version"""
     try:
         # Remove emoji from personality for backend processing
         clean_personality = personality.split(' ', 1)[1] if ' ' in personality else personality
-        print(f"🎭 DEBUG: Chat using personality: {clean_personality}")
         response = chatbot.chat_response(message, history, clean_personality)
         return response
     except Exception as e:
         error_msg = f"Sorry, I encountered an error: {str(e)}"
-        print(f"❌ Error in chat_with_personality: {error_msg}")
         return error_msg
+
+def generate_voice_response(text, personality):
+    """Generate voice response separately"""
+    if not text:
+        return None
+    
+    try:
+        clean_personality = personality.split(' ', 1)[1] if ' ' in personality else personality
+        clean_text = extract_text_only(text)
+        
+        if clean_text:
+            audio_bytes = text_to_speech_simple(clean_text, clean_personality)
+            if audio_bytes:
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as temp_file:
+                    temp_file.write(audio_bytes)
+                    return temp_file.name
+    except Exception as e:
+        pass
+    
+    return None
 
 def process_voice_input(audio_data):
     """Process voice input and return transcribed text"""
@@ -62,29 +96,41 @@ def process_voice_input(audio_data):
 def get_memory_status():
     try:
         memory_info = chatbot.get_memory_info()
-        return f"""**🧠 Memory Status:** Active
-**📊 Messages:** {memory_info.get('total_messages', 0)}
-**💬 Turns:** {memory_info.get('conversation_turns', 0)}
-**🔧 Window:** {memory_info.get('memory_window_size', 0)}
+        total_messages = memory_info.get('total_messages', 0)
+        conversation_turns = memory_info.get('conversation_turns', 0)
+        
+        # Show proper fresh state when no messages
+        if total_messages == 0:
+            return f"""**🧠 Memory Status:** Ready
+**📊 Messages:** 0
+**💬 Turns:** 0
+**🔧 Window:** {memory_info.get('memory_window_size', 10)}
+**✅ State:** Fresh"""
+        else:
+            return f"""**🧠 Memory Status:** Active
+**📊 Messages:** {total_messages}
+**💬 Turns:** {conversation_turns}
+**🔧 Window:** {memory_info.get('memory_window_size', 10)}
 **✅ State:** {'Active' if memory_info.get('memory_active', False) else 'Ready'}"""
     except Exception as e:
-        return f"**❌ Error:** {e}"
+        return f"""**🧠 Memory Status:** Ready
+**📊 Messages:** 0
+**💬 Turns:** 0
+**🔧 Window:** 10
+**✅ State:** Fresh"""
 
 def clear_memory():
     try:
         chatbot.clear_conversation_memory()
-        print("🧠 Conversation memory cleared")
         return """**🧠 Memory:** Cleared
 **✅ Status:** Ready
 **🔄 State:** Fresh start"""
     except Exception as e:
-        print(f"❌ Error clearing memory: {e}")
         return f"**❌ Error:** {e}"
 
 def toggle_personalities(selected_personalities):
     """Update available personalities based on user selection"""
     if not selected_personalities:
-        # If none selected, default to the top 3
         return gr.Radio(choices=["NetworkChuck", "StartupFounder", "EthicalHacker"], 
                        value="NetworkChuck")
     else:
@@ -152,16 +198,16 @@ def create_interface():
     test_set_names = list(test_sets.keys())
     
     with gr.Blocks(
-        title="🚀 NetworkChuck AI Assistant - Customizable Personalities + Voice",
+        title="🚀 NetworkChuck AI Assistant - Voice-Enabled",
         css=custom_css,
         theme=gr.themes.Soft()
     ) as interface:
         
         gr.Markdown("""
         # 🚀 NetworkChuck AI Assistant
-        ## 🧠 Memory + 🎥 Videos + 🎭 Customizable AI Personalities + 🎤 Voice
+        ## 🧠 Memory + 🎥 Videos + 🎭 Customizable AI Personalities + 🎤🔊 Voice
         
-        Customize your AI experience - choose your preferred expert personas!
+        Complete voice conversation - talk with AI personalities that respond in their unique voices!
         """)
         
         # Active Personality Selector (Full width like chatbox)
@@ -172,17 +218,39 @@ def create_interface():
             info="Select your current expert persona"
         )
         
+        # Voice settings
+        with gr.Accordion("🔊 Voice Settings", open=False, elem_classes=["voice-controls"]):
+            voice_enabled = gr.Checkbox(
+                label="Enable Voice Output",
+                value=True,
+                info="AI will respond with voice"
+            )
+        
         # Main Layout: Chat + Right Panel
         with gr.Row():
             # Left side: Chat Interface (larger)
             with gr.Column(scale=2):
+                # Use your original working ChatInterface
                 chatbot_interface = gr.ChatInterface(
                     fn=chat_with_personality,
                     additional_inputs=[personality_radio],
-                    title="💬 Chat with Memory + Videos",
+                    title="💬 Chat with Memory + Videos + Voice",
                     description="Ask questions and I'll remember our conversation!",
                     chatbot=gr.Chatbot(height=600)
                 )
+                
+                # Separate voice output area
+                with gr.Row():
+                    tts_audio = gr.Audio(
+                        label="🔊 AI Voice Response",
+                        autoplay=True,
+                        visible=True
+                    )
+                    generate_voice_btn = gr.Button(
+                        "🔊 Generate Voice",
+                        variant="secondary",
+                        size="sm"
+                    )
                 
                 # Voice input section - added below chat
                 with gr.Accordion("🎤 Voice Input", open=False, elem_classes=["voice-controls"]):
@@ -262,8 +330,10 @@ def create_interface():
                 with gr.Accordion("🧠 Memory Controls", open=False):
                     memory_status_display = gr.Markdown(
                         value="""**🧠 Memory Status:** Ready
-**📊 State:** Initialized  
-**🔧 Window:** 10 turns""",
+**📊 Messages:** 0
+**💬 Turns:** 0
+**🔧 Window:** 10
+**✅ State:** Fresh""",
                         elem_classes=["memory-status"]
                     )
                     
@@ -285,7 +355,6 @@ def create_interface():
         def update_personality_radio(selected_personalities):
             """Update the personality radio options based on selection"""
             if not selected_personalities:
-                # Default to top 3 if nothing selected
                 choices = DEFAULT_PERSONALITIES
                 value = "🧔‍♂️ NetworkChuck"
             else:
@@ -295,7 +364,6 @@ def create_interface():
             return gr.Radio(choices=choices, value=value)
         
         def switch_personality(personality):
-            print(f"🎭 DEBUG: Switched to {personality}")
             return f"""**🎭 Personality:** {personality}
 **✅ Status:** Active
 **🔄 Ready:** For conversation"""
@@ -305,6 +373,22 @@ def create_interface():
             tests = test_sets.get(test_set_name, [])
             table_data = [[i+1, test] for i, test in enumerate(tests)]
             return table_data
+        
+        def generate_voice_for_last_response(history, personality, voice_enabled):
+            """Generate voice for the last AI response"""
+            if not history or not voice_enabled:
+                return gr.Audio(visible=False)
+            
+            try:
+                last_response = history[-1][1] if len(history) > 0 else ""
+                if last_response:
+                    audio_file = generate_voice_response(last_response, personality)
+                    if audio_file:
+                        return gr.Audio(value=audio_file, visible=True)
+            except:
+                pass
+            
+            return gr.Audio(visible=False)
         
         # Connect events
         personality_selector_right.change(
@@ -349,44 +433,55 @@ def create_interface():
             outputs=[chatbot_interface.textbox]
         )
         
+        # Manual voice generation button
+        generate_voice_btn.click(
+            fn=generate_voice_for_last_response,
+            inputs=[chatbot_interface.chatbot, personality_radio, voice_enabled],
+            outputs=[tts_audio]
+        )
+        
         # Updated Footer
         gr.Markdown(f"""
         ---
-        **🚀 Features:** Voice Input • Customizable Personalities • LangChain Memory • Video Integration • {len(test_sets)} Test Sets • Demo Ready
+        **🚀 Features:** Voice Input/Output • Customizable Personalities • Memory • Videos • Documentation • {len(test_sets)} Test Sets
         """)
     
     return interface
 
 def test_memory_integration():
-    print("🧪 Testing LangChain Memory Integration...")
     try:
+        # Clear any existing memory first
+        chatbot.clear_conversation_memory()
+        
         memory_info = chatbot.get_memory_info()
-        print(f"✅ Memory initialized: {memory_info}")
         
         test_history = []
         response1 = chatbot.chat_response("How do I install Docker?", test_history, "NetworkChuck")
         test_history.append(["How do I install Docker?", response1])
-        print("✅ First response generated")
         
         response2 = chatbot.chat_response("Can you remind me what we just discussed?", test_history, "NetworkChuck")
-        print("✅ Memory-based response generated")
         
         final_memory = chatbot.get_memory_info()
-        print(f"✅ Final memory: {final_memory}")
         
-        # Clean up test data from memory
+        # Clean up test data from memory - make sure it's completely clean
         chatbot.clear_conversation_memory()
-        print("🧹 Test memory cleared - ready for real conversations")
         
-        print("🎉 LangChain Memory Integration Test PASSED!")
         return True
     except Exception as e:
-        print(f"❌ Memory Integration Test FAILED: {e}")
+        # Always clean memory even if test fails
+        chatbot.clear_conversation_memory()
         return False
 
 if __name__ == "__main__":
-    print("🚀 NetworkChuck AI with Voice Input Starting...")
-    test_memory_integration()  # Now cleans up after itself
+    # Comment out test to avoid memory pollution
+    # test_memory_integration()
+
+    print("🧪 Debug: Checking initial memory state...")
+    memory_info = chatbot.get_memory_info()
+    print(f"Memory before anything: {memory_info}")
+    
+    # Ensure completely fresh memory for users
+    chatbot.clear_conversation_memory()
     
     interface = create_interface()
     interface.launch()

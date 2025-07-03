@@ -54,6 +54,8 @@ class NetworkChuckChatbot:
         """Clear the conversation memory"""
         try:
             self.rag.clear_memory()
+            self.rag.memory.clear()
+            self.rag.memory.chat_memory.clear()
             print("🧠 Conversation memory cleared")
             return True
         except Exception as e:
