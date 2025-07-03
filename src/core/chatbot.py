@@ -43,6 +43,44 @@ class NetworkChuckChatbot:
             print(f"❌ Error in chat_response: {str(e)}")
             return f"Sorry, I encountered an error: {str(e)}"
     
+    def chat_response_with_filters(self, message: str, history: list, personality: str = None, content_settings: dict = None, similarity_threshold: float = 0.3, llm_temperature: float = 0.7) -> str:
+        """
+        Generate chat response with content filtering and retrieval settings
+        
+        Args:
+            message: Current user message
+            history: Gradio chat history [[user_msg, bot_msg], ...]
+            personality: Selected personality from UI dropdown
+            content_settings: Dict with enable_videos, enable_docs, enable_analogies
+            similarity_threshold: Minimum similarity for retrieval results
+            llm_temperature: LLM creativity level
+        """
+        try:
+            # Use the personality parameter directly (from UI dropdown)
+            selected_personality = personality or "networkchuck"
+            
+            print(f"🎭 DEBUG: Chatbot received personality: {selected_personality}")
+            print(f"🧠 DEBUG: History length: {len(history)} turns")
+            print(f"🎯 DEBUG: Content settings: {content_settings}")
+            print(f"📊 DEBUG: Similarity threshold: {similarity_threshold}, Temperature: {llm_temperature}")
+            
+            # RAG call with memory integration and filtering settings
+            response = self.rag.invoke_with_filters({
+                "question": message,
+                "personality": selected_personality.lower(),
+                "history": history,
+                "content_settings": content_settings or {},
+                "similarity_threshold": similarity_threshold,
+                "llm_temperature": llm_temperature
+            })
+            
+            return response
+                
+        except Exception as e:
+            print(f"❌ Error in chat_response_with_filters: {str(e)}")
+            # Fallback to regular response if filtering fails
+            return self.chat_response(message, history, personality)
+    
     def get_memory_info(self) -> dict:
         """Get information about current memory state"""
         try:
@@ -54,8 +92,6 @@ class NetworkChuckChatbot:
         """Clear the conversation memory"""
         try:
             self.rag.clear_memory()
-            self.rag.memory.clear()
-            self.rag.memory.chat_memory.clear()
             print("🧠 Conversation memory cleared")
             return True
         except Exception as e:

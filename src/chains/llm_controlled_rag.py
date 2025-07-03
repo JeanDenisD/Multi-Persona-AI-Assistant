@@ -1,6 +1,6 @@
 """
 LLM-Controlled RAG - LLM decides what to retrieve
-Complete version with fixed comprehensive memory logic + simple video integration
+Complete version with fixed comprehensive memory logic + simple video integration + content filtering
 FIXED: Float handling for start_time values
 """
 
@@ -21,7 +21,7 @@ from ..prompts.llm_controller_prompts import get_controller_prompt_template
 
 class LLMControlledRAG(Runnable):
     """
-    LLM-controlled RAG with conversation memory + simple video integration
+    LLM-controlled RAG with conversation memory + simple video integration + content filtering
     """
     
     def __init__(self, memory_window_size: int = 10):
@@ -66,6 +66,44 @@ class LLMControlledRAG(Runnable):
         
         return response
     
+    def invoke_with_filters(self, input_dict: Dict[str, Any]) -> str:
+        """Enhanced invoke with content filtering and retrieval settings"""
+        query = input_dict["question"]
+        personality = input_dict.get("personality", "networkchuck")
+        gradio_history = input_dict.get("history", [])
+        content_settings = input_dict.get("content_settings", {})
+        similarity_threshold = input_dict.get("similarity_threshold", 0.3)
+        llm_temperature = input_dict.get("llm_temperature", 0.7)
+        
+        print(f"🎯 Processing with filters: {content_settings}")
+        print(f"📊 Similarity threshold: {similarity_threshold}, Temperature: {llm_temperature}")
+        
+        # Update generator LLM temperature
+        self.generator_llm.temperature = llm_temperature
+        
+        # Step 1: Update memory from Gradio history if provided
+        self._sync_memory_with_gradio_history(gradio_history)
+        
+        # Step 2: Check if we should apply tech analogies filter
+        enable_analogies = content_settings.get('enable_analogies', True)
+        
+        # Step 3: LLM Controller decides what to retrieve (with memory context)
+        retrieval_strategy = self._get_retrieval_strategy(query, personality, enable_analogies)
+        
+        # Step 4: Retrieve content based on LLM's decision with similarity filtering
+        context = self._retrieve_content_with_filters(query, retrieval_strategy, similarity_threshold)
+        
+        # Step 5: LLM Generator creates response with personality and memory
+        response = self._generate_response_with_filters(query, context, personality, retrieval_strategy, content_settings)
+        
+        # Step 6: Save this interaction to memory
+        self.memory.save_context(
+            {"input": query},
+            {"output": response}
+        )
+        
+        return response
+    
     def _sync_memory_with_gradio_history(self, gradio_history: List[List[str]]):
         """
         Sync LangChain memory with Gradio chat history
@@ -91,15 +129,19 @@ class LLMControlledRAG(Runnable):
         
         print(f"🧠 Memory synced with {len(gradio_history)} conversation turns")
     
-    def _get_retrieval_strategy(self, query: str, personality: str) -> Dict[str, Any]:
-        """LLM decides what type of content to retrieve (with memory-aware logic)"""
+    def _get_retrieval_strategy(self, query: str, personality: str, enable_analogies: bool = True) -> Dict[str, Any]:
+        """LLM decides what type of content to retrieve (with memory-aware logic and analogy control)"""
         
         # Get conversation history for context
         memory_context = self._get_memory_context()
         
-        controller_prompt = ChatPromptTemplate.from_template(
-            get_controller_prompt_template()
-        )
+        # Modify controller prompt based on analogy setting
+        base_prompt = get_controller_prompt_template()
+        if not enable_analogies and not self._is_tech_query(query):
+            analogy_instruction = "\n\nIMPORTANT: User has disabled tech analogies for non-technical questions. Avoid suggesting technical comparisons for casual/non-tech topics."
+            base_prompt += analogy_instruction
+        
+        controller_prompt = ChatPromptTemplate.from_template(base_prompt)
         
         result = self.controller_llm.invoke(
             controller_prompt.format(
@@ -123,6 +165,16 @@ class LLMControlledRAG(Runnable):
         print(f"🧠 Controller Decision: {strategy['query_type']} - {strategy['reasoning']}")
         
         return strategy
+    
+    def _is_tech_query(self, query: str) -> bool:
+        """Check if query is technical in nature"""
+        tech_keywords = [
+            'docker', 'network', 'programming', 'code', 'server', 'database',
+            'excel', 'vlookup', 'python', 'linux', 'security', 'vpn',
+            'install', 'configure', 'setup', 'command', 'function'
+        ]
+        query_lower = query.lower()
+        return any(keyword in query_lower for keyword in tech_keywords)
     
     def _get_memory_context(self) -> str:
         """Format memory context for the controller LLM - COMPLETE VERSION"""
@@ -296,6 +348,44 @@ class LLMControlledRAG(Runnable):
         if query_type == "CONTEXT_SEARCH":
             doc_score_pairs = doc_score_pairs[:3]  # Fewer docs for context queries
             print("🧠 Limited retrieval for context-aware query")
+        
+        # Store docs for video processing
+        self._last_doc_score_pairs = doc_score_pairs
+        
+        # Format context
+        context = self.retriever.format_context(doc_score_pairs)
+        print(f"🔍 DEBUG: Final context length: {len(context)} chars")
+        
+        return context
+    
+    def _retrieve_content_with_filters(self, query: str, strategy: Dict[str, Any], similarity_threshold: float) -> str:
+        """Retrieve content with similarity threshold filtering"""
+        
+        query_type = strategy.get("query_type", "NORMAL_SEARCH")
+        
+        # Handle memory-priority queries
+        if query_type == "MEMORY_PRIORITY":
+            print("🧠 MEMORY_PRIORITY detected - using memory as primary source")
+            return "MEMORY_FOCUS"  # Special flag for generator
+        
+        # For context/normal search, proceed with retrieval
+        search_terms = strategy.get("search_terms", query)
+        if search_terms == "use_memory" or not search_terms:
+            search_terms = query  # Fallback to original query
+        
+        print(f"🔍 DEBUG: Search query: {search_terms}")
+        print(f"📊 DEBUG: Using similarity threshold: {similarity_threshold}")
+        
+        # Get documents
+        doc_score_pairs = self.retriever.retrieve_context(search_terms, top_k=10)  # Get more initially
+        
+        # Apply similarity threshold filtering
+        filtered_docs = [(doc, score) for doc, score in doc_score_pairs if score >= similarity_threshold]
+        
+        print(f"🔍 DEBUG: Found {len(doc_score_pairs)} documents, {len(filtered_docs)} above threshold {similarity_threshold}")
+        
+        # Take top 5 after filtering
+        doc_score_pairs = filtered_docs[:5]
         
         # Store docs for video processing
         self._last_doc_score_pairs = doc_score_pairs
@@ -520,6 +610,67 @@ class LLMControlledRAG(Runnable):
                 final_response += "\n\n" + doc_links
         
         return final_response
+    
+    def _generate_response_with_filters(self, query: str, context: str, personality: str, strategy: Dict[str, Any], content_settings: dict) -> str:
+        """Generate response with content filtering applied"""
+        
+        # Generate the base response using existing method
+        base_response = self._generate_response(query, context, personality, strategy)
+        
+        # Apply content filters
+        filtered_response = base_response
+        
+        # Remove videos if disabled
+        if not content_settings.get('enable_videos', True):
+            filtered_response = self._remove_video_sections(filtered_response)
+            print("🎥 Videos filtered out")
+        
+        # Remove documentation if disabled
+        if not content_settings.get('enable_docs', True):
+            filtered_response = self._remove_doc_sections(filtered_response)
+            print("📚 Documentation filtered out")
+        
+        return filtered_response
+    
+    def _remove_video_sections(self, response_text: str) -> str:
+        """Remove video sections from response"""
+        if not response_text:
+            return ""
+        
+        lines = response_text.split('\n')
+        filtered_lines = []
+        skip_section = False
+        
+        for line in lines:
+            if '🎥 **Source Videos:**' in line:
+                skip_section = True
+                continue
+            elif '📚 **Related Documentation:**' in line:
+                skip_section = False
+            
+            if not skip_section:
+                filtered_lines.append(line)
+        
+        return '\n'.join(filtered_lines).strip()
+    
+    def _remove_doc_sections(self, response_text: str) -> str:
+        """Remove documentation sections from response"""
+        if not response_text:
+            return ""
+        
+        lines = response_text.split('\n')
+        filtered_lines = []
+        skip_section = False
+        
+        for line in lines:
+            if '📚 **Related Documentation:**' in line:
+                skip_section = True
+                continue
+            
+            if not skip_section:
+                filtered_lines.append(line)
+        
+        return '\n'.join(filtered_lines).strip()
     
     def _should_add_docs(self, query: str) -> bool:
         """Check if documentation should be added"""
