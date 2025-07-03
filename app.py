@@ -456,7 +456,7 @@ def create_interface():
                     ],
                     title="💬 AI Conversation",
                     description="Ask questions and I'll remember our conversation with intelligent filtering!",
-                    chatbot=gr.Chatbot(height=500, type='messages')
+                    chatbot=gr.Chatbot(height=400, type='messages')
                 )
                 
                 # REARRANGED: Audio Controls Side by Side
