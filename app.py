@@ -12,7 +12,7 @@ load_dotenv()
 from src.core.chatbot import NetworkChuckChatbot
 from src.core.voice_manager import speech_to_text, text_to_speech_simple
 
-chatbot = NetworkChuckChatbot(memory_window_size=10)
+chatbot = NetworkChuckChatbot(max_turns=20)
 
 def load_test_cases(file_path="data/test_cases.json"):
     """Load test cases from external JSON file"""
@@ -38,23 +38,31 @@ def load_test_cases(file_path="data/test_cases.json"):
     except json.JSONDecodeError as e:
         return {}
 
+# Updated the extract_text_only function to use the new cleaning
 def extract_text_only(response_text: str) -> str:
     """Extract only the main text content, removing videos and docs"""
     if not response_text or response_text is None:
         return ""
     
-    lines = response_text.split('\n')
-    text_lines = []
-    
-    for line in lines:
-        # Skip video and documentation sections
-        if any(marker in line for marker in ['🎥 **Source Videos:**', '📚 **Related Documentation:**']):
-            break
-        if line.startswith('**[') or line.startswith('• [') or 'http' in line:
-            continue
-        text_lines.append(line)
-    
-    return '\n'.join(text_lines).strip()
+    try:
+        # Use the new voice cleaner if available
+        from src.utils.voice_cleaner import extract_voice_content, clean_text_for_voice
+        voice_content = extract_voice_content(response_text)
+        return clean_text_for_voice(voice_content)
+    except ImportError:
+        # Fallback to original method if new cleaner not available
+        lines = response_text.split('\n')
+        text_lines = []
+        
+        for line in lines:
+            # Skip video and documentation sections
+            if any(marker in line for marker in ['🎥 **Source Videos:**', '📚 **Related Documentation:**']):
+                break
+            if line.startswith('**[') or line.startswith('• [') or 'http' in line:
+                continue
+            text_lines.append(line)
+        
+        return '\n'.join(text_lines).strip()
 
 def remove_video_sections(response_text: str) -> str:
     """Remove video sections from response"""
@@ -126,13 +134,21 @@ def chat_with_personality(message, history, personality, enable_videos, enable_d
         return error_msg
 
 def generate_voice_response(text, personality):
-    """Generate voice response separately"""
+    """Generate voice response with proper text cleaning"""
     if not text:
         return None
     
     try:
+        from src.utils.voice_cleaner import extract_voice_content, clean_text_for_voice
+        
         clean_personality = personality.split(' ', 1)[1] if ' ' in personality else personality
-        clean_text = extract_text_only(text)
+        
+        # Extract main content and clean for voice
+        voice_content = extract_voice_content(text)
+        clean_text = clean_text_for_voice(voice_content)
+        
+        # Debug: Show what we're sending to TTS
+        print(f"🔊 Voice text (cleaned): '{clean_text[:100]}...'")
         
         if clean_text:
             audio_bytes = text_to_speech_simple(clean_text, clean_personality)
@@ -141,7 +157,17 @@ def generate_voice_response(text, personality):
                     temp_file.write(audio_bytes)
                     return temp_file.name
     except Exception as e:
-        pass
+        print(f"⚠️ Voice generation error: {e}")
+        # Fallback: basic cleaning if import fails
+        fallback_text = text.replace('*', '').replace('•', '').replace('#', '')
+        try:
+            audio_bytes = text_to_speech_simple(fallback_text, clean_personality)
+            if audio_bytes:
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as temp_file:
+                    temp_file.write(audio_bytes)
+                    return temp_file.name
+        except:
+            pass
     
     return None
 
@@ -599,10 +625,54 @@ def test_memory_integration():
         # Always clean memory even if test fails
         chatbot.clear_conversation_memory()
         return False
+    
+# Test function for voice cleaning integration
+def test_voice_cleaning_integration():
+    """Test the voice cleaning integration"""
+    
+    test_response = """**Docker** is a *containerization* platform! 🚀
+
+Here are the key benefits:
+• **Portability** - runs anywhere
+• *Consistency* - same environment everywhere  
+• **Scalability** - easy to scale up/down
+
+🎥 **Source Videos:**
+1. **[Docker Tutorial](https://youtube.com/watch?v=123)**
+   • 5:30 - Installation
+   • 12:45 - Configuration
+
+📚 **Related Documentation:**
+1. **Docker Engine Documentation** (intermediate)
+"""
+    
+    print("🧪 Testing Voice Cleaning Integration")
+    print("=" * 50)
+    print(f"Original text length: {len(test_response)} chars")
+    print(f"Has asterisks: {'*' in test_response}")
+    print(f"Has video section: {'🎥' in test_response}")
+    
+    # Test voice cleaning
+    try:
+        from src.utils.voice_cleaner import extract_voice_content, clean_text_for_voice
+        
+        voice_content = extract_voice_content(test_response)
+        clean_text = clean_text_for_voice(voice_content)
+        
+        print(f"\nCleaned text length: {len(clean_text)} chars")
+        print(f"Asterisks removed: {'*' not in clean_text}")
+        print(f"Video section removed: {'🎥' not in clean_text}")
+        print(f"Clean text: '{clean_text}'")
+        
+        print("\n✅ Voice cleaning integration test passed!")
+        
+    except Exception as e:
+        print(f"❌ Voice cleaning test failed: {e}")
 
 if __name__ == "__main__":
     # Comment out test to avoid memory pollution
     # test_memory_integration()
+    test_voice_cleaning_integration()
     
     # Ensure completely fresh memory for users
     chatbot.clear_conversation_memory()

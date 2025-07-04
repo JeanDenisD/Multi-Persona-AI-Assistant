@@ -1,37 +1,36 @@
 """
-NetworkChuck AI Chatbot - Enhanced with Max Documents Control
-Complete chatbot orchestration with memory, personality, and advanced filtering
+Simplified NetworkChuck Chatbot - Enhanced memory with GPT-4o-mini
+Removes aggressive controller, lets LLM decide naturally
 """
 
 import os
 from typing import List, Dict, Any
-from langchain.schema import HumanMessage, AIMessage
 
-from ..chains.llm_controlled_rag import LLMControlledRAG
+# Import the simplified RAG system instead of the complex one
+from ..chains.simplified_rag import SimplifiedRAG
+from ..utils.voice_cleaner import clean_text_for_voice, extract_voice_content
 
 
 class NetworkChuckChatbot:
     """
-    Main chatbot class that orchestrates all components with max documents support
+    Simplified chatbot using enhanced memory and GPT-4 reasoning
     """
     
-    def __init__(self, memory_window_size: int = 10):
-        """Initialize the NetworkChuck AI chatbot"""
-        # Initialize the LLM-controlled RAG chain with modern memory
-        self.rag_chain = LLMControlledRAG(memory_window_size=memory_window_size)
+    def __init__(self, max_turns: int = 20):
+        """Initialize with enhanced memory (20 turns + summarization)"""
+        # Use simplified RAG system with GPT-4o-mini
+        self.rag_system = SimplifiedRAG(max_turns=max_turns)
         
-        print(f"✅ NetworkChuck Chatbot ready with memory (window: {memory_window_size})!")
+        print(f"✅ NetworkChuck Chatbot ready with enhanced memory ({max_turns} turns)!")
     
     def chat_response(self, message: str, history: List, personality: str, max_documents: int = 5) -> str:
-        """
-        Regular chat response with max_documents support for backward compatibility
-        """
+        """Simplified chat response - let GPT-4 handle everything"""
         try:
-            print(f"🎭 DEBUG: Chatbot received personality: {personality}")
-            print(f"🧠 DEBUG: History length: {len(history)} turns")
-            print(f"📄 DEBUG: Max documents: {max_documents}")
+            print(f"🎭 Chatbot: {personality}")
+            print(f"🧠 History: {len(history)} turns")
+            print(f"📄 Max docs: {max_documents}")
             
-            # Prepare input for LLM-controlled RAG
+            # Prepare input for simplified RAG
             rag_input = {
                 "question": message,
                 "personality": personality, 
@@ -39,8 +38,8 @@ class NetworkChuckChatbot:
                 "max_documents": max_documents
             }
             
-            # Get response from LLM-controlled RAG
-            response = self.rag_chain.invoke(rag_input)
+            # Get response from simplified RAG
+            response = self.rag_system.invoke(rag_input)
             
             return response
             
@@ -48,31 +47,28 @@ class NetworkChuckChatbot:
             print(f"❌ Error in chat_response: {e}")
             return f"I encountered an error: {str(e)}"
     
-    def chat_response_with_filters(self, message: str, history: List, personality: str, content_settings: dict, similarity_threshold: float, llm_temperature: float) -> str:
-        """
-        Enhanced chat response with advanced filtering options including max documents
-        """
+    def chat_response_with_filters(self, message: str, history: List, personality: str, 
+                                 content_settings: dict, similarity_threshold: float, 
+                                 llm_temperature: float) -> str:
+        """Enhanced chat response with filtering"""
         try:
-            print(f"🎭 DEBUG: Chatbot received personality: {personality}")
-            print(f"🧠 DEBUG: History length: {len(history)} turns")
-            print(f"🎯 DEBUG: Content settings: {content_settings}")
-            print(f"📊 DEBUG: Similarity threshold: {similarity_threshold}, Temperature: {llm_temperature}")
+            print(f"🎭 Chatbot: {personality}")
+            print(f"🧠 History: {len(history)} turns")
+            print(f"🎯 Settings: {content_settings}")
+            print(f"📊 Threshold: {similarity_threshold}, Temp: {llm_temperature}")
             
-            # Extract max_documents from content_settings
-            max_documents = content_settings.get('max_documents', 5)
-            
-            # Prepare input for LLM-controlled RAG with max_documents
+            # Prepare input for simplified RAG with filters
             rag_input = {
                 "question": message,
                 "personality": personality,
                 "history": history,
-                "content_settings": content_settings,  # This now includes max_documents
+                "content_settings": content_settings,
                 "similarity_threshold": similarity_threshold,
                 "llm_temperature": llm_temperature
             }
             
-            # Get response from LLM-controlled RAG
-            response = self.rag_chain.invoke_with_filters(rag_input)
+            # Get response from simplified RAG with filters
+            response = self.rag_system.invoke_with_filters(rag_input)
             
             return response
             
@@ -80,275 +76,119 @@ class NetworkChuckChatbot:
             print(f"❌ Error in chat_response_with_filters: {e}")
             # Fallback to regular chat response
             try:
-                return self.chat_response(message, history, personality, content_settings.get('max_documents', 5))
+                return self.chat_response(
+                    message, history, personality, 
+                    content_settings.get('max_documents', 5)
+                )
             except Exception as fallback_error:
                 return f"I encountered an error processing your request. Please try again."
     
-    def get_memory_info(self) -> Dict[str, Any]:
-        """Get information about current memory state"""
+    def get_voice_text(self, response: str) -> str:
+        """Get cleaned text suitable for voice synthesis"""
         try:
-            return self.rag_chain.get_memory_summary()
+            # Extract main content (remove video/doc sections)
+            voice_content = extract_voice_content(response)
+            
+            # Clean formatting and asterisks for TTS
+            cleaned_text = clean_text_for_voice(voice_content)
+            
+            return cleaned_text
+            
+        except Exception as e:
+            print(f"⚠️ Voice cleaning error: {e}")
+            # Fallback: basic cleaning
+            return response.replace('*', '').replace('#', '').replace('•', '')
+    
+    def get_memory_info(self) -> Dict[str, Any]:
+        """Get enhanced memory information"""
+        try:
+            memory_summary = self.rag_system.get_memory_summary()
+            
+            # Add enhanced memory info
+            memory_summary.update({
+                "memory_type": "Enhanced with Summarization",
+                "max_turns": 20,
+                "summary_available": memory_summary.get("has_summary", False)
+            })
+            
+            return memory_summary
+            
         except Exception as e:
             return {
                 "error": str(e),
                 "total_messages": 0,
                 "conversation_turns": 0,
-                "memory_window_size": 10,
-                "memory_active": False
+                "memory_active": False,
+                "memory_type": "Enhanced"
             }
     
     def clear_conversation_memory(self):
-        """Clear the conversation memory"""
+        """Clear the enhanced conversation memory"""
         try:
-            self.rag_chain.clear_memory()
+            self.rag_system.clear_memory()
         except Exception as e:
             print(f"❌ Error clearing memory: {e}")
     
-    def export_conversation(self) -> Dict[str, Any]:
-        """Export conversation for debugging/analysis"""
+    def get_conversation_summary(self) -> str:
+        """Get the current conversation summary if available"""
         try:
-            memory_info = self.get_memory_info()
-            
-            # Get raw messages if available
-            raw_messages = []
-            if hasattr(self.rag_chain.memory, 'chat_memory') and hasattr(self.rag_chain.memory.chat_memory, 'messages'):
-                for msg in self.rag_chain.memory.chat_memory.messages:
-                    raw_messages.append({
-                        "type": type(msg).__name__,
-                        "content": getattr(msg, 'content', str(msg)),
-                        "length": len(getattr(msg, 'content', str(msg)))
-                    })
-            
-            return {
-                "memory_info": memory_info,
-                "raw_messages": raw_messages,
-                "export_timestamp": str(pd.Timestamp.now()) if 'pd' in globals() else "unavailable"
-            }
-            
+            if hasattr(self.rag_system.memory, 'conversation_summary'):
+                return self.rag_system.memory.conversation_summary
+            return "No summary available."
         except Exception as e:
-            return {"error": str(e)}
+            return f"Error getting summary: {e}"
     
-    def simulate_conversation(self, test_scenario: str = "docker_basics") -> bool:
-        """Simulate a test conversation for debugging"""
+    def analyze_query_complexity(self, query: str) -> Dict[str, Any]:
+        """Simple query analysis (much simpler than before)"""
+        query_lower = query.lower()
         
-        scenarios = {
-            "docker_basics": [
-                ("Hi! I want to learn about Docker", "networkchuck"),
-                ("How do I install Docker on Ubuntu?", "networkchuck"), 
-                ("What's the difference between Docker and VMs?", "networkchuck"),
-                ("Can you remind me what we discussed about installation?", "networkchuck")
-            ],
-            "excel_tutorial": [
-                ("I need help with Excel spreadsheets", "bloomy"),
-                ("How do I create a VLOOKUP formula?", "bloomy"),
-                ("What about pivot tables?", "bloomy"),
-                ("Earlier you mentioned VLOOKUP, can you expand on that?", "bloomy")
-            ],
-            "max_documents_test": [
-                ("What is machine learning?", "datascientist"),  # Test with different max_documents
-                ("Explain neural networks", "datascientist"),
-                ("How does deep learning work?", "datascientist")
-            ]
+        # Simple checks
+        is_greeting = any(word in query_lower for word in ['hello', 'hi', 'hey', 'good morning'])
+        is_question = '?' in query
+        is_memory_request = any(phrase in query_lower for phrase in ['remind me', 'what did we discuss', 'earlier'])
+        has_video_name = any(word in query_lower for word in ['video', 'tutorial', 'guide'])
+        
+        return {
+            "query_type": "memory" if is_memory_request else ("greeting" if is_greeting else "general"),
+            "is_question": is_question,
+            "mentions_video": has_video_name,
+            "word_count": len(query.split()),
+            "complexity": "simple" if len(query.split()) < 10 else "complex"
         }
-        
-        if test_scenario not in scenarios:
-            print(f"❌ Unknown scenario: {test_scenario}")
-            return False
-        
-        print(f"🎬 Simulating conversation: {test_scenario}")
-        
-        # Clear memory before test
-        self.clear_conversation_memory()
-        
-        history = []
-        for i, (question, personality) in enumerate(scenarios[test_scenario]):
-            print(f"\n--- Turn {i+1} ---")
-            print(f"👤 User ({personality}): {question}")
-            
-            # Test with different max_documents values
-            if test_scenario == "max_documents_test":
-                max_docs = [3, 8, 12][i]  # Different values for each turn
-                content_settings = {'max_documents': max_docs, 'enable_videos': True, 'enable_docs': True, 'enable_analogies': True}
-                response = self.chat_response_with_filters(question, history, personality, content_settings, 0.3, 0.7)
-                print(f"🤖 Bot (max_docs={max_docs}): {response[:150]}...")
-            else:
-                # Regular test
-                response = self.chat_response(question, history, personality)
-                print(f"🤖 Bot: {response[:150]}...")
-            
-            # Update history (Gradio format)
-            history.append([question, response])
-            
-            # Show memory state
-            memory_info = self.get_memory_info()
-            print(f"🧠 Memory: {memory_info.get('conversation_turns', 0)} turns")
-        
-        print(f"\n✅ Conversation simulation completed!")
-        
-        # Clean up after test
-        self.clear_conversation_memory()
-        return True
-    
-    def benchmark_max_documents(self, query: str = "What is Docker?", personality: str = "networkchuck") -> Dict[int, Dict]:
-        """Benchmark different max_documents values"""
-        
-        results = {}
-        test_values = [1, 3, 5, 8, 10, 15]
-        
-        print(f"🏁 Benchmarking max_documents with query: '{query}'")
-        
-        for max_docs in test_values:
-            print(f"\n📄 Testing max_documents = {max_docs}")
-            
-            # Clear memory for clean test
-            self.clear_conversation_memory()
-            
-            import time
-            start_time = time.time()
-            
-            content_settings = {
-                'max_documents': max_docs,
-                'enable_videos': True,
-                'enable_docs': True,
-                'enable_analogies': True
-            }
-            
-            try:
-                response = self.chat_response_with_filters(
-                    query, [], personality, content_settings, 0.3, 0.7
-                )
-                
-                end_time = time.time()
-                
-                results[max_docs] = {
-                    'response_length': len(response),
-                    'response_time': round(end_time - start_time, 2),
-                    'success': True,
-                    'response_preview': response[:100] + "..." if len(response) > 100 else response
-                }
-                
-                print(f"   ✅ Time: {results[max_docs]['response_time']}s, Length: {results[max_docs]['response_length']} chars")
-                
-            except Exception as e:
-                results[max_docs] = {
-                    'success': False,
-                    'error': str(e),
-                    'response_time': None
-                }
-                print(f"   ❌ Error: {e}")
-        
-        print(f"\n📊 Benchmark Results Summary:")
-        print("Max Docs | Time (s) | Length | Status")
-        print("-" * 40)
-        for max_docs, result in results.items():
-            if result['success']:
-                print(f"{max_docs:8} | {result['response_time']:7} | {result['response_length']:6} | ✅")
-            else:
-                print(f"{max_docs:8} | {'ERROR':7} | {'N/A':6} | ❌")
-        
-        # Clean up after benchmark
-        self.clear_conversation_memory()
-        
-        return results
-    
-    def get_optimal_max_documents(self, target_response_time: float = 3.0) -> int:
-        """Get optimal max_documents value based on performance"""
-        
-        benchmark_results = self.benchmark_max_documents()
-        
-        # Find the highest max_documents that meets the time target
-        optimal = 5  # Default fallback
-        
-        for max_docs in sorted(benchmark_results.keys(), reverse=True):
-            result = benchmark_results[max_docs]
-            if result['success'] and result['response_time'] <= target_response_time:
-                optimal = max_docs
-                break
-        
-        print(f"🎯 Optimal max_documents for {target_response_time}s target: {optimal}")
-        return optimal
 
 
-# Test functions
-def test_max_documents_feature():
-    """Test the max documents feature"""
-    print("🧪 Testing Max Documents Feature...")
+# Test functions (simplified)
+def test_simplified_chatbot():
+    """Test the simplified chatbot system"""
+    print("🧪 Testing Simplified Chatbot with Enhanced Memory")
     
     try:
         # Initialize chatbot
-        chatbot = NetworkChuckChatbot(memory_window_size=5)
+        chatbot = NetworkChuckChatbot(max_turns=20)
         
-        # Test different max_documents values
-        test_query = "What is machine learning?"
-        test_personality = "datascientist"
+        # Test basic chat
+        response = chatbot.chat_response("What is Docker?", [], "networkchuck")
+        print(f"✅ Basic chat: {len(response)} chars")
         
-        for max_docs in [1, 5, 10]:
-            print(f"\n📄 Testing with max_documents = {max_docs}")
-            
-            content_settings = {
-                'max_documents': max_docs,
-                'enable_videos': True,
-                'enable_docs': True,
-                'enable_analogies': True
-            }
-            
-            response = chatbot.chat_response_with_filters(
-                test_query, [], test_personality, content_settings, 0.3, 0.7
-            )
-            
-            print(f"Response length: {len(response)} characters")
-            print(f"Preview: {response[:100]}...")
+        # Test voice cleaning
+        voice_text = chatbot.get_voice_text("**Docker** is *amazing*! 🚀 Check this out.")
+        print(f"✅ Voice cleaning: '{voice_text}' (no asterisks: {'*' not in voice_text})")
         
-        print("✅ Max Documents feature test completed!")
-        return True
-        
-    except Exception as e:
-        print(f"❌ Max Documents test failed: {e}")
-        return False
-
-def test_chatbot_integration():
-    """Test complete chatbot integration"""
-    print("🧪 Testing Complete Chatbot Integration...")
-    
-    try:
-        # Initialize chatbot
-        chatbot = NetworkChuckChatbot()
-        
-        # Test regular chat
-        response1 = chatbot.chat_response("Hello!", [], "networkchuck")
-        print(f"✅ Regular chat: {len(response1)} chars")
-        
-        # Test filtered chat
-        content_settings = {
-            'max_documents': 3,
-            'enable_videos': False,
-            'enable_docs': False,
-            'enable_analogies': True
-        }
-        
-        response2 = chatbot.chat_response_with_filters(
-            "What is Docker?", [], "networkchuck", content_settings, 0.5, 0.8
-        )
-        print(f"✅ Filtered chat: {len(response2)} chars")
-        
-        # Test memory
+        # Test memory info
         memory_info = chatbot.get_memory_info()
-        print(f"✅ Memory info: {memory_info.get('total_messages', 0)} messages")
+        print(f"✅ Memory info: {memory_info.get('memory_type', 'Unknown')}")
         
-        # Test conversation simulation
-        chatbot.simulate_conversation("max_documents_test")
-        print("✅ Conversation simulation completed")
+        # Test query analysis
+        analysis = chatbot.analyze_query_complexity("How do I install Docker on Ubuntu?")
+        print(f"✅ Query analysis: {analysis['complexity']} {analysis['query_type']}")
         
-        print("✅ Complete integration test passed!")
+        print("✅ Simplified chatbot test completed!")
         return True
         
     except Exception as e:
-        print(f"❌ Integration test failed: {e}")
+        print(f"❌ Simplified chatbot test failed: {e}")
         return False
 
 
 if __name__ == "__main__":
-    # Run tests
-    # test_max_documents_feature()
-    # test_chatbot_integration()
-    pass  # Run tests if needed
+    test_simplified_chatbot()

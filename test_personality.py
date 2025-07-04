@@ -2,7 +2,7 @@
 Test personality isolation
 """
 
-from src.chains.llm_controlled_rag import LLMControlledRAG
+from src.chains.llm_controlled_rag_old import LLMControlledRAG
 
 def test_personalities():
     rag = LLMControlledRAG()
