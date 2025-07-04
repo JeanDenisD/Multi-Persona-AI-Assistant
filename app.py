@@ -292,7 +292,7 @@ def create_interface():
         with gr.Row(elem_classes=["title-header"]):
             gr.HTML("""
             <div style="text-align: center;">
-                <h1>🚀 NetworkChuck AI Assistant</h1>
+                <h1>🎭 Multi Persona AI Assistant</h1>
                 <h3>🧠 Memory + 🎥 Videos + 🎭 Personalities + 🎤🔊 Voice + 🎯 Smart Filtering + 📄 Document Control</h3>
                 <p>Professional AI assistant with advanced document retrieval control and intelligent filtering</p>
             </div>
