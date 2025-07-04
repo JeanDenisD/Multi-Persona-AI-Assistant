@@ -324,7 +324,7 @@ def create_interface():
 
                     
                     # Enhanced Content Filtering Tab
-                    with gr.Tab("🎯 Filtering"):
+                    with gr.Tab("🎯 Filter"):
                         gr.Markdown("**📋 Response Content**")
                         
                         enable_videos = gr.Checkbox(
@@ -498,16 +498,19 @@ def create_interface():
                             label="Record your question"
                         )
                         
+                        
                         with gr.Row():
-                            voice_btn = gr.Button("🎤→📝 Convert Only", variant="secondary", scale=1)
+                            # voice_btn = gr.Button("🎤→📝 Convert Only", variant="secondary", scale=1)
                             voice_to_chat_btn = gr.Button("🎤→💬 Voice to Chat", variant="primary", scale=1)
                         
+                        """    
                         voice_output = gr.Textbox(
                             label="Transcribed Text",
                             placeholder="Voice will be converted to text here...",
                             lines=2
                         )
-                    
+                        """
+
                     # Right Side: Text-to-Speech (TTS)
                     with gr.Column(scale=1):
                         gr.Markdown("#### 🔊 Text to Speech")
@@ -572,12 +575,14 @@ def create_interface():
             outputs=[memory_status_display]
         )
         
+        """
         # Voice input events
         voice_btn.click(
             fn=process_voice_input,
             inputs=[voice_input],
             outputs=[voice_output]
         )
+        """
         
         voice_to_chat_btn.click(
             fn=process_voice_input,

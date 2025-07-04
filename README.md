@@ -205,41 +205,54 @@ bloomy: "Docker containerization follows a structured enterprise approach. Here 
 multi-persona-ai-assistant/
 ├── app.py                          # Main Gradio application
 ├── notebooks/                      # 📓 Dataset creation & analysis
-│   ├── 01_youtube_data_extraction.ipynb
-│   ├── 02_transcript_processing.ipynb
-│   ├── 03_embedding_generation.ipynb
-│   ├── 04_vector_db_setup.ipynb
-│   ├── 05_quality_control.ipynb
-│   └── rag_development_V2.ipynb    # Main development notebook
+│   ├── data_quality_validation.ipynb
+│   ├── rag_development.ipynb
+│   ├── rag_development_V2.ipynb    # Main development notebook
+│   ├── smart_doc_matcher.ipynb
+│   └── whisper_extraction_tutorial.ipynb
 ├── data/                          # 📊 Dataset & knowledge base
-│   ├── raw/                       # Raw video transcripts
-│   ├── processed/                 # Cleaned & segmented data
-│   ├── test_cases.json           # Test scenarios
-│   ├── video_urls.json           # Source video metadata
-│   └── official_docs/            # Documentation database
-│       └── documentation_links.json
+│   └── (contains processed datasets and test cases)
+├── docs/                          # 📄 Documentation
+├── MVPs/                          # 🏆 Previous versions
+│   ├── MVP_1.py
+│   ├── MVP_2.py
+│   └── MVP_3.py
 ├── src/                          # 🔧 Application code
-│   ├── core/
-│   │   ├── chatbot.py            # Main chatbot orchestrator
-│   │   ├── voice_manager.py      # Voice I/O handling
-│   │   └── doc_matcher.py        # Smart documentation matching
 │   ├── chains/
+│   │   ├── __init__.py
+│   │   ├── llm_controlled_rag_old.py
 │   │   └── simplified_rag.py     # Enhanced RAG with GPT-4o-mini
+│   ├── core/
+│   │   ├── __init__.py
+│   │   ├── chatbot.py            # Main chatbot orchestrator
+│   │   ├── doc_matcher.py        # Smart documentation matching
+│   │   ├── enhanced_rag.py       # Enhanced RAG engine
+│   │   ├── personality.py        # Personality management
+│   │   ├── retriever.py          # RAG retriever
+│   │   └── voice_manager.py      # Voice I/O handling
+│   ├── embedding/                # 🧠 Embedding pipeline
+│   │   └── embedding_pipeline.py
 │   ├── prompts/
+│   │   ├── __init__.py
+│   │   ├── llm_controller_prompts.py
 │   │   └── personality_prompts.py # 6 personality definitions
 │   ├── utils/
-│   │   ├── voice_cleaner.py      # Clean TTS text processing
-│   │   └── whisper_youtube_extractor.py # Data pipeline utilities
-│   └── data_pipeline/            # 🏗️ Dataset creation tools
-│       ├── youtube_extractor.py  # Video transcript extraction
-│       ├── embedding_generator.py # OpenAI embedding creation
-│       └── vector_db_manager.py  # Pinecone database setup
-├── scripts/                      # 🚀 Deployment & utilities
-│   ├── setup_database.py        # Initialize vector database
-│   └── deploy.sh                # Deployment scripts
+│   │   ├── __init__.py
+│   │   └── voice_cleaner.py      # Clean TTS text processing
+│   ├── __init__.py
+│   └── whisper_youtube_extractor.py # YouTube extraction utility
 ├── tests/                        # 🧪 Testing suite
+│   ├── test_embedding.py
+│   ├── test_extraction.py
+│   └── test_langchain_tools.py
+├── test_enhanced_personalities.py # Personality testing
+├── test_memory.py                 # Memory system testing
+├── test_personality.py            # Individual personality tests
+├── test_whisper.py               # Voice processing tests
 ├── requirements.txt              # Python dependencies
-├── .env.example                 # Environment template
+├── .env.example                  # Environment template
+├── .gitignore                    # Git ignore rules
+├── LICENSE                       # MIT License
 └── README.md                    # Project documentation
 ```
 
@@ -535,7 +548,10 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 - **🌐 Multi-Modal Expansion**:
   - Image analysis and description
   - Document upload and analysis
-  - Video content summarization
+  - Single upload Video content & summarization
+  - VAD (Voice Activity Detection) for better voice interaction
+  - Embedded video player for direct content interaction
+  - Excel formula, VBA, and Python code generator
 - **🏢 Enterprise Features**:
   - Custom personality creation tools
   - Organization-specific knowledge bases
@@ -551,17 +567,6 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 - **Adaptive Learning**: AI that evolves based on user interaction patterns
 - **Cognitive Load Optimization**: Personalized information delivery
 - **Cross-Cultural Communication**: Culturally-aware personality adaptations
-
-### 🤝 Community Involvement
-
-We're actively seeking contributors for:
-
-- **Domain Experts**: Help create new personality types
-- **UX/UI Designers**: Improve user interface and experience
-- **ML Engineers**: Advanced memory and reasoning systems
-- **Content Creators**: Expand knowledge base with diverse sources
-
-_Interested in contributing to the roadmap? Join our [GitHub Discussions](https://github.com/JeanDenisD/multi-persona-ai-assistant/discussions) to share ideas and collaborate!_
 
 ## 📄 License
 
